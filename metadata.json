@@ -1,0 +1,5 @@
+{
+  "name": "FitFlix - Academia e Casa",
+  "description": "Uma plataforma completa que integra gestão de treinos de academia com um serviço de streaming de treinos em casa, estilo Netflix. Gere planos de treino personalizados com IA e acompanhe seu progresso.",
+  "requestFramePermissions": []
+}
