@@ -4,6 +4,7 @@ const View = {
     Gym: 'GYM',
     Home: 'HOME',
     Profile: 'PROFILE',
+    Feed: 'FEED',
   };
   
   const MOCK_USER = {
@@ -111,6 +112,49 @@ const View = {
     { month: 'Jun', weightLifted: 2500 },
   ];
   
+  // Dados mock para posts
+  const MOCK_POSTS = [
+    {
+      id: 1,
+      user: {
+        name: 'Carlos Silva',
+        avatarUrl: 'https://picsum.photos/seed/user3/200/200',
+      },
+      imageUrl: 'https://picsum.photos/seed/post1/600/600',
+      caption: 'Treino de perna foi intenso hoje! 💪 #Foco #Determinação',
+      likes: 24,
+      comments: 5,
+      liked: false,
+      timestamp: '2 horas atrás'
+    },
+    {
+      id: 2,
+      user: {
+        name: 'Mariana Costa',
+        avatarUrl: 'https://picsum.photos/seed/user4/200/200',
+      },
+      imageUrl: 'https://picsum.photos/seed/post2/600/600',
+      caption: 'Novo recorde no supino! 🏋️‍♀️ 80kg hoje! #Progresso #Força',
+      likes: 32,
+      comments: 8,
+      liked: true,
+      timestamp: '5 horas atrás'
+    },
+    {
+      id: 3,
+      user: {
+        name: 'Roberto Alves',
+        avatarUrl: 'https://picsum.photos/seed/user5/200/200',
+      },
+      imageUrl: 'https://picsum.photos/seed/post3/600/600',
+      caption: 'Grupo de treino faz toda a diferença! 👊 #Motivação #Equipe',
+      likes: 18,
+      comments: 3,
+      liked: false,
+      timestamp: '1 dia atrás'
+    }
+  ];
+  
   // --- START OF ICONS ---
   const DumbbellIcon = () => `
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
@@ -162,13 +206,38 @@ const View = {
     </svg>
   `;
   
-  const LogoIcon = () => `
-    <svg style="width: 3rem; height: 3rem;" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="50" cy="50" r="50" fill="currentColor" style="color: var(--brand-primary)"/>
-      <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="white" font-size="40" font-weight="bold" dy=".1em">
-        EMF
-      </text>
+  const FeedIcon = () => `
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z" />
     </svg>
+  `;
+  
+  const HeartIcon = () => `
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+    </svg>
+  `;
+  
+  const CommentIcon = () => `
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.76c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.076-4.076a1.526 1.526 0 011.037-.443 48.282 48.282 0 005.68-.494c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
+    </svg>
+  `;
+  
+  const ShareIcon = () => `
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z" />
+    </svg>
+  `;
+  
+  const AddIcon = () => `
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+    </svg>
+  `;
+  
+  const LogoIcon = () => `
+    <img src="mulher-fitnes.jpg" alt="FitFlix Logo" style="width: 3rem; height: 3rem; border-radius: 50%; object-fit: cover;" />
   `;
   
   // --- START OF COMPONENTS ---
@@ -194,6 +263,7 @@ const View = {
       { view: View.Dashboard, icon: DashboardIcon(), label: 'Início' },
       { view: View.Gym, icon: DumbbellIcon(), label: 'Academia' },
       { view: View.Home, icon: HomeIcon(), label: 'Em Casa' },
+      { view: View.Feed, icon: FeedIcon(), label: 'Feed' },
       { view: View.Profile, icon: UserIcon(), label: 'Perfil' },
     ];
   
@@ -267,21 +337,6 @@ const View = {
   
   // Gym.js
   const ExerciseDetailModal = (exercise, logs, onClose, onLogSet) => {
-    let weight = '';
-    let reps = '';
-  
-    const handleAddSet = (e) => {
-      e.preventDefault();
-      const weightInput = document.getElementById('weight');
-      const repsInput = document.getElementById('reps');
-      
-      if (weightInput && repsInput && weightInput.value && repsInput.value) {
-        onLogSet({ weight: weightInput.value, reps: repsInput.value });
-        weightInput.value = '';
-        repsInput.value = '';
-      }
-    };
-  
     return `
       <div class="modal-overlay">
         <div class="modal-content">
@@ -357,7 +412,7 @@ const View = {
             </span>
           </div>
         </div>
-        ${isCompleted ? CheckCircleIcon() : ''}
+        ${isCompleted ? `<div class="exercise-card-checkmark">${CheckCircleIcon()}</div>` : ''}
       </div>
     `;
   };
@@ -409,7 +464,7 @@ const View = {
       <div class="video-card-thumbnail-container">
         <img src="${video.thumbnailUrl}" alt="${video.title}" class="video-card-thumbnail" />
         <div class="video-card-overlay">
-          ${PlayIcon()}
+          <div class="video-card-play-icon">${PlayIcon()}</div>
         </div>
         <span class="video-card-duration">${video.duration}</span>
       </div>
@@ -447,6 +502,96 @@ const View = {
         <div class="carousels-container">
           ${MOCK_HOME_VIDEOS.map(category => VideoCarousel(category)).join('')}
         </div>
+      </div>
+    `;
+  };
+  
+  // Feed.js
+  const FeedPost = (post, onLike) => {
+    return `
+      <div class="feed-post">
+        <div class="post-header">
+          <img src="${post.user.avatarUrl}" alt="${post.user.name}" class="post-user-avatar" />
+          <div class="post-user-info">
+            <h4 class="post-user-name">${post.user.name}</h4>
+            <p class="post-time">${post.timestamp}</p>
+          </div>
+        </div>
+        
+        <img src="${post.imageUrl}" alt="Post de ${post.user.name}" class="post-image" />
+        
+        <div class="post-actions">
+          <button class="post-action ${post.liked ? 'liked' : ''}" data-post-id="${post.id}" data-action="like">
+            ${HeartIcon()}
+            <span>Curtir</span>
+          </button>
+          <button class="post-action" data-post-id="${post.id}" data-action="comment">
+            ${CommentIcon()}
+            <span>Comentar</span>
+          </button>
+          <button class="post-action" data-post-id="${post.id}" data-action="share">
+            ${ShareIcon()}
+            <span>Compartilhar</span>
+          </button>
+        </div>
+        
+        <div class="post-stats">
+          <strong>${post.likes} curtidas • ${post.comments} comentários</strong>
+        </div>
+        
+        <div class="post-caption">
+          <span class="post-caption-username">${post.user.name}</span>
+          ${post.caption}
+        </div>
+      </div>
+    `;
+  };
+  
+  const NewPostModal = (onClose, onSubmit) => {
+    return `
+      <div class="modal-overlay">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3 style="padding: 1rem; margin: 0; color: var(--text-primary);">Criar Nova Publicação</h3>
+            <button class="modal-close-button" id="modal-close">
+              ${XIcon()}
+            </button>
+          </div>
+          <div class="modal-body new-post-modal">
+            <div class="log-form-group">
+              <label for="post-image" class="log-form-label">URL da Imagem</label>
+              <input type="text" id="post-image" placeholder="https://exemplo.com/imagem.jpg" class="log-form-input" />
+            </div>
+            
+            <div class="log-form-group">
+              <label for="post-caption" class="log-form-label">Legenda</label>
+              <textarea id="post-caption" placeholder="Compartilhe sua conquista..."></textarea>
+            </div>
+            
+            <button class="btn-primary" id="submit-post">
+              Publicar
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  };
+  
+  const Feed = (posts, onLike, onNewPost) => {
+    return `
+      <div class="page-container">
+        <div>
+          <h2 class="page-title">Feed da Comunidade</h2>
+          <p class="page-subtitle">Conecte-se com outros alunos da academia</p>
+        </div>
+        
+        <div class="feed-posts">
+          ${posts.map(post => FeedPost(post, onLike)).join('')}
+        </div>
+        
+        <button class="new-post-button" id="new-post-button">
+          ${AddIcon()}
+        </button>
       </div>
     `;
   };
@@ -499,6 +644,8 @@ const View = {
       this.logs = {};
       this.selectedExercise = null;
       this.activeDay = this.workoutPlan.days[0]?.day || '';
+      this.posts = MOCK_POSTS;
+      this.showNewPostModal = false;
       
       this.init();
     }
@@ -506,7 +653,6 @@ const View = {
     init() {
       this.render();
       this.setupEventListeners();
-      // this.renderChart(); // <-- ERRO (E2) CORRIGIDO: Removido
     }
   
     setView(view) {
@@ -537,14 +683,45 @@ const View = {
       this.render();
     }
   
+    setShowNewPostModal(show) {
+      this.showNewPostModal = show;
+      this.render();
+    }
+  
+    addNewPost(imageUrl, caption) {
+      const newPost = {
+        id: this.posts.length + 1,
+        user: {
+          name: this.user.name,
+          avatarUrl: this.user.avatarUrl,
+        },
+        imageUrl: imageUrl,
+        caption: caption,
+        likes: 0,
+        comments: 0,
+        liked: false,
+        timestamp: 'Agora mesmo'
+      };
+      
+      this.posts.unshift(newPost);
+      this.setShowNewPostModal(false);
+    }
+  
+    toggleLike(postId) {
+      const post = this.posts.find(p => p.id === postId);
+      if (post) {
+        post.liked = !post.liked;
+        post.likes += post.liked ? 1 : -1;
+        this.render();
+      }
+    }
+  
     render() {
       const root = document.getElementById('root');
       if (!root) return;
   
-      // --- ERRO (E1) CORRIGIDO ---
       // Limpa qualquer modal aberto antes de re-renderizar
       document.querySelector('.modal-overlay')?.remove();
-      // --- FIM DA CORREÇÃO ---
   
       let mainContent = '';
       switch (this.activeView) {
@@ -559,6 +736,9 @@ const View = {
           break;
         case View.Profile:
           mainContent = Profile(this.user);
+          break;
+        case View.Feed:
+          mainContent = Feed(this.posts, this.toggleLike.bind(this), this.setShowNewPostModal.bind(this));
           break;
         default:
           mainContent = Dashboard(this.user, this.workoutPlan);
@@ -585,6 +765,17 @@ const View = {
         
         document.body.insertAdjacentHTML('beforeend', modalHtml);
         this.setupModalEvents();
+      }
+  
+      // Render new post modal
+      if (this.showNewPostModal) {
+        const modalHtml = NewPostModal(
+          () => this.setShowNewPostModal(false),
+          (imageUrl, caption) => this.addNewPost(imageUrl, caption)
+        );
+        
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+        this.setupNewPostModalEvents();
       }
   
       this.setupEventListeners();
@@ -633,6 +824,27 @@ const View = {
           }
         });
       });
+  
+      // New post button
+      const newPostButton = document.getElementById('new-post-button');
+      if (newPostButton) {
+        newPostButton.addEventListener('click', () => {
+          this.setShowNewPostModal(true);
+        });
+      }
+  
+      // Post actions (like, comment, share)
+      document.querySelectorAll('.post-action').forEach(button => {
+        button.addEventListener('click', () => {
+          const postId = parseInt(button.getAttribute('data-post-id'));
+          const action = button.getAttribute('data-action');
+          
+          if (action === 'like') {
+            this.toggleLike(postId);
+          }
+          // Implementar comment e share posteriormente
+        });
+      });
     }
   
     setupModalEvents() {
@@ -657,18 +869,43 @@ const View = {
             weightInput.value = '';
             repsInput.value = '';
             
-            // --- MELHORIA DE UX (M1) ---
             // Foca no primeiro input para facilitar o registro da próxima série
             document.getElementById('weight')?.focus();
-            // --- FIM DA MELHORIA ---
           }
         });
       }
   
       // Close modal when clicking outside
-      document.querySelector('.modal-overlay').addEventListener('click', (e) => {
+      document.querySelector('.modal-overlay')?.addEventListener('click', (e) => {
         if (e.target.classList.contains('modal-overlay')) {
           this.closeModal();
+        }
+      });
+    }
+  
+    setupNewPostModalEvents() {
+      const closeButton = document.getElementById('modal-close');
+      const submitButton = document.getElementById('submit-post');
+  
+      if (closeButton) {
+        closeButton.addEventListener('click', () => this.setShowNewPostModal(false));
+      }
+  
+      if (submitButton) {
+        submitButton.addEventListener('click', () => {
+          const imageInput = document.getElementById('post-image');
+          const captionInput = document.getElementById('post-caption');
+          
+          if (imageInput && captionInput && imageInput.value) {
+            this.addNewPost(imageInput.value, captionInput.value);
+          }
+        });
+      }
+  
+      // Close modal when clicking outside
+      document.querySelector('.modal-overlay')?.addEventListener('click', (e) => {
+        if (e.target.classList.contains('modal-overlay')) {
+          this.setShowNewPostModal(false);
         }
       });
     }
@@ -678,17 +915,15 @@ const View = {
       if (!canvas) return;
       
       const ctx = canvas.getContext('2d');
-
-      // --- MELHORIA (M3): Substituído desenho manual por Chart.js ---
-      
-      // Destrói gráfico anterior se existir (Chart.js precisa disso)
+  
+      // Destrói gráfico anterior se existir
       if (canvas.chartInstance) {
         canvas.chartInstance.destroy();
       }
-
+  
       const labels = MOCK_PROGRESS_DATA.map(d => d.month);
       const data = MOCK_PROGRESS_DATA.map(d => d.weightLifted);
-
+  
       canvas.chartInstance = new Chart(ctx, {
         type: 'bar',
         data: {
