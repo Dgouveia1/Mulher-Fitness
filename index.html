@@ -2,8 +2,8 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Espaço Mulher | Sistema de Gestão Integrada</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Espaço Mulher | Sistema Mobile</title>
     
     <!-- Dependências -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -32,6 +32,9 @@
                         nutri: {
                             50: '#f5f3ff', 100: '#ede9fe', 500: '#8b5cf6', 600: '#7c3aed',
                         }
+                    },
+                    screens: {
+                        'xs': '475px',
                     }
                 }
             }
@@ -41,21 +44,25 @@
 <body class="bg-slate-50 text-slate-800 overflow-hidden h-screen flex flex-col">
 
     <!-- TOAST NOTIFICATIONS -->
-    <div id="toast-container" class="fixed top-6 right-6 z-[100] flex flex-col gap-3 pointer-events-none"></div>
+    <div id="toast-container" class="fixed top-4 right-4 left-4 md:left-auto md:w-auto z-[100] flex flex-col gap-3 pointer-events-none"></div>
 
     <!-- TELA DE LOGIN -->
-    <div id="login-view" class="fixed inset-0 z-50 bg-white flex items-center justify-center transition-all duration-700">
-        <div class="w-full max-w-5xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row relative z-10 m-4">
+    <div id="login-view" class="fixed inset-0 z-[200] bg-white flex items-center justify-center transition-all duration-700 p-4">
+        <div class="w-full max-w-5xl bg-white rounded-3xl md:shadow-2xl overflow-hidden flex flex-col md:flex-row relative z-10">
             <div class="flex-[1.2] hidden md:block relative min-h-[600px]">
                 <img src="imagens/imagem-para-tela-login.png" alt="Mulher Fitness" class="absolute inset-0 w-full h-full object-cover">
                 <div class="absolute inset-0 bg-gradient-to-r from-brand-900/60 to-transparent"></div>
-                <div class="absolute bottom-10 left-10 text-white">
-
-                </div>
             </div>
-            <div class="flex-1 p-10 md:p-16 flex flex-col justify-center">
+            <!-- Mobile Header Image -->
+            <div class="md:hidden h-40 bg-brand-600 relative overflow-hidden rounded-t-3xl">
+                 <img src="imagens/imagem-para-tela-login 1.png" alt="Mulher Fitness" class="absolute inset-0 w-full h-full object-cover opacity-50">
+                 <div class="absolute inset-0 flex items-center justify-center">
+                 </div>
+            </div>
+
+            <div class="flex-1 p-6 md:p-16 flex flex-col justify-center">
                 <div class="mb-8 text-center md:text-left">
-                    <h1 class="text-2xl font-bold text-gray-800">Bem-vinda de volta!</h1>
+                    <h1 class="text-2xl font-bold text-gray-800">Bem-vinda!</h1>
                     <p class="text-gray-500 mt-2">Faça login para gerenciar sua unidade.</p>
                 </div>
 
@@ -77,12 +84,12 @@
                         </div>
                     </div>
 
-                    <button type="submit" id="login-btn" class="w-full bg-brand-600 text-white py-3 rounded-lg font-bold shadow-lg shadow-brand-500/30 hover:bg-brand-700 transition-all transform hover:scale-[1.02] flex justify-center items-center login-transition">
+                    <button type="submit" id="login-btn" class="w-full bg-brand-600 text-white py-3 rounded-lg font-bold shadow-lg shadow-brand-500/30 hover:bg-brand-700 transition-all active:scale-95 flex justify-center items-center">
                         <span>Acessar Sistema</span>
                         <i class="fa-solid fa-arrow-right ml-2"></i>
                     </button>
                 </form>
-                <p class="mt-8 text-xs text-center text-gray-400">Versão 2.2 - Gestão de Confirmações</p>
+                <p class="mt-8 text-xs text-center text-gray-400">Versão Mobile Otimizada 2.3</p>
             </div>
         </div>
     </div>
@@ -90,32 +97,38 @@
     <!-- APP LAYOUT -->
     <div id="app-view" class="hidden fixed inset-0 flex bg-gray-50 opacity-0 transition-opacity duration-700">
         
+        <!-- MOBILE BACKDROP -->
+        <div id="sidebar-backdrop" class="fixed inset-0 bg-black/50 z-30 md:hidden hidden opacity-0 transition-opacity duration-300" onclick="App.toggleSidebarMobile()"></div>
+
         <!-- SIDEBAR -->
-        <aside id="sidebar" class="w-72 bg-white border-r border-gray-200 flex flex-col transition-all duration-300 z-30 shadow-sm">
-            <div class="h-20 flex items-center justify-center px-4 border-b border-gray-100">
-                <img src="imagens/logo-completo-rosa.png" alt="Logo" class="h-10 object-contain sidebar-logo transition-all">
+        <aside id="sidebar" class="fixed md:relative inset-y-0 left-0 z-40 w-72 bg-white border-r border-gray-200 flex flex-col transition-transform duration-300 transform -translate-x-full md:translate-x-0 shadow-2xl md:shadow-sm">
+            <div class="h-16 flex items-center justify-center px-4 border-b border-gray-100 relative">
+                <h2 class="text-brand-600 font-heading font-bold text-xl tracking-tighter sidebar-logo whitespace-nowrap">Espaço Mulher</h2>
+                <!-- Botão fechar mobile -->
+                <button onclick="App.toggleSidebarMobile()" class="md:hidden absolute right-4 text-gray-400 hover:text-brand-600">
+                    <i class="fa-solid fa-times text-xl"></i>
+                </button>
             </div>
 
-            <nav class="flex-1 py-6 px-3 space-y-1 overflow-y-auto custom-scroll">
-                <button onclick="Router.navigate('dashboard')" id="nav-dashboard" class="nav-item w-full flex items-center px-3 py-3 text-sm font-medium text-gray-600 rounded-lg hover:bg-brand-50 hover:text-brand-600 transition-colors active">
+            <nav class="flex-1 py-4 px-3 space-y-1 overflow-y-auto custom-scroll">
+                <button onclick="Router.navigate('dashboard'); App.closeSidebarMobile()" id="nav-dashboard" class="nav-item w-full flex items-center px-3 py-3 text-sm font-medium text-gray-600 rounded-lg hover:bg-brand-50 hover:text-brand-600 transition-colors active">
                     <i class="fa-solid fa-chart-pie w-6 text-center text-lg"></i>
                     <span class="ml-3 sidebar-text">Dashboard</span>
                 </button>
                 
                 <div class="my-2 px-3 text-xs font-bold text-gray-400 uppercase sidebar-text">Gestão</div>
                 
-                <button onclick="Router.navigate('agenda')" id="nav-agenda" class="nav-item w-full flex items-center px-3 py-3 text-sm font-medium text-gray-600 rounded-lg hover:bg-brand-50 hover:text-brand-600 transition-colors">
+                <button onclick="Router.navigate('agenda'); App.closeSidebarMobile()" id="nav-agenda" class="nav-item w-full flex items-center px-3 py-3 text-sm font-medium text-gray-600 rounded-lg hover:bg-brand-50 hover:text-brand-600 transition-colors">
                     <i class="fa-solid fa-calendar-check w-6 text-center text-lg"></i>
                     <span class="ml-3 sidebar-text">Agenda Integrada</span>
                 </button>
 
-                <!-- Nova Sessão Confirmações -->
-                <button onclick="Router.navigate('confirmacoes')" id="nav-confirmacoes" class="nav-item w-full flex items-center px-3 py-3 text-sm font-medium text-gray-600 rounded-lg hover:bg-brand-50 hover:text-brand-600 transition-colors">
+                <button onclick="Router.navigate('confirmacoes'); App.closeSidebarMobile()" id="nav-confirmacoes" class="nav-item w-full flex items-center px-3 py-3 text-sm font-medium text-gray-600 rounded-lg hover:bg-brand-50 hover:text-brand-600 transition-colors">
                     <i class="fa-solid fa-clipboard-check w-6 text-center text-lg"></i>
                     <span class="ml-3 sidebar-text">Confirmações</span>
                 </button>
 
-                <button onclick="App.toggleChat()" class="nav-item w-full flex items-center px-3 py-3 text-sm font-medium text-gray-600 rounded-lg hover:bg-brand-50 hover:text-brand-600 transition-colors mt-4">
+                <button onclick="App.toggleChat(); App.closeSidebarMobile()" class="nav-item w-full flex items-center px-3 py-3 text-sm font-medium text-gray-600 rounded-lg hover:bg-brand-50 hover:text-brand-600 transition-colors mt-4">
                     <div class="relative">
                         <i class="fa-solid fa-comments w-6 text-center text-lg"></i>
                         <span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 border-2 border-white rounded-full notification-pulse"></span>
@@ -125,12 +138,13 @@
             </nav>
 
             <div class="p-4 border-t border-gray-100 bg-gray-50">
-                <div class="flex items-center mb-3 cursor-pointer" onclick="App.toggleSidebar()">
+                <!-- Desktop Toggle -->
+                <div class="hidden md:flex items-center mb-3 cursor-pointer" onclick="App.toggleSidebarDesktop()">
                     <i class="fa-solid fa-chevron-left text-gray-400 hover:text-brand-600 transition-transform" id="collapse-icon"></i>
                     <span class="ml-3 text-xs text-gray-500 font-medium sidebar-text">Recolher Menu</span>
                 </div>
                 <div class="flex items-center">
-                    <div class="w-8 h-8 rounded-full bg-brand-200 flex items-center justify-center text-brand-700 font-bold text-xs">RC</div>
+                    <div class="w-8 h-8 rounded-full bg-brand-200 flex items-center justify-center text-brand-700 font-bold text-xs shrink-0">RC</div>
                     <div class="ml-3 sidebar-text overflow-hidden">
                         <p class="text-sm font-bold text-gray-800 truncate">Recepção Central</p>
                         <p class="text-xs text-green-600 flex items-center gap-1"><span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span> Online</p>
@@ -140,34 +154,42 @@
         </aside>
 
         <!-- MAIN CONTENT -->
-        <main class="flex-1 flex flex-col min-w-0 bg-gray-50/50 relative">
+        <main class="flex-1 flex flex-col min-w-0 bg-gray-50/50 relative w-full">
             <!-- Header -->
-            <header class="bg-white h-16 border-b border-gray-200 flex items-center justify-between px-8 shadow-sm z-20">
-                <h2 id="page-title" class="text-xl font-heading font-bold text-gray-800">Dashboard</h2>
-                <div class="flex items-center gap-6">
+            <header class="bg-white h-16 border-b border-gray-200 flex items-center justify-between px-4 md:px-8 shadow-sm z-20 shrink-0">
+                <div class="flex items-center gap-3">
+                    <!-- Mobile Menu Button -->
+                    <button onclick="App.toggleSidebarMobile()" class="md:hidden text-gray-500 hover:text-brand-600 p-1">
+                        <i class="fa-solid fa-bars text-xl"></i>
+                    </button>
+                    <h2 id="page-title" class="text-lg md:text-xl font-heading font-bold text-gray-800 truncate max-w-[200px] xs:max-w-none">Dashboard</h2>
+                </div>
+
+                <div class="flex items-center gap-4">
                     <div class="hidden md:flex items-center text-sm text-gray-500 bg-gray-100 px-3 py-1.5 rounded-full">
                         <i class="fa-regular fa-clock mr-2 text-brand-500"></i> <span id="clock">00:00</span>
                     </div>
-                    <div class="h-8 w-px bg-gray-200"></div>
+                    
                     <button class="relative p-2 text-gray-400 hover:text-brand-600 transition">
                         <i class="fa-regular fa-bell text-xl"></i>
                         <span class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full"></span>
                     </button>
                     <button onclick="document.location.reload()" class="text-gray-400 hover:text-red-500 text-sm font-medium flex items-center gap-2">
-                        <i class="fa-solid fa-right-from-bracket"></i> Sair
+                        <i class="fa-solid fa-right-from-bracket text-lg md:text-sm"></i> 
+                        <span class="hidden md:inline">Sair</span>
                     </button>
                 </div>
             </header>
 
             <!-- Dynamic View Container -->
-            <div id="view-container" class="flex-1 overflow-y-auto p-6 md:p-8 relative custom-scroll">
+            <div id="view-container" class="flex-1 overflow-y-auto p-4 md:p-8 relative custom-scroll">
                 <!-- Content rendered via JS -->
             </div>
         </main>
 
         <!-- CHAT WIDGET (Floating) -->
-        <div id="chat-widget" class="absolute bottom-6 right-6 w-80 md:w-96 bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col z-50 hidden-widget h-[450px] transition-all duration-300">
-            <div class="bg-gradient-to-r from-brand-600 to-brand-500 p-4 flex justify-between items-center text-white rounded-t-2xl cursor-pointer" onclick="App.toggleChatState()">
+        <div id="chat-widget" class="absolute md:bottom-6 md:right-6 bottom-0 right-0 left-0 md:left-auto w-full md:w-96 bg-white md:rounded-2xl rounded-t-2xl shadow-[0_-5px_20px_rgba(0,0,0,0.1)] border border-gray-200 flex flex-col z-50 hidden-widget h-[80vh] md:h-[450px] transition-all duration-300">
+            <div class="bg-gradient-to-r from-brand-600 to-brand-500 p-4 flex justify-between items-center text-white md:rounded-t-2xl rounded-t-2xl cursor-pointer" onclick="App.minimizeChat()">
                 <div class="flex items-center gap-3">
                     <div class="relative">
                         <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm"><i class="fa-solid fa-headset"></i></div>
@@ -179,15 +201,14 @@
                     </div>
                 </div>
                 <div class="flex gap-2">
-                    <button onclick="event.stopPropagation(); App.minimizeChat()" class="p-1 hover:bg-white/20 rounded"><i class="fa-solid fa-minus"></i></button>
-                    <button onclick="event.stopPropagation(); App.closeChat()" class="p-1 hover:bg-white/20 rounded"><i class="fa-solid fa-times"></i></button>
+                    <button onclick="event.stopPropagation(); App.closeChat()" class="p-2 hover:bg-white/20 rounded"><i class="fa-solid fa-chevron-down"></i></button>
                 </div>
             </div>
-            <div id="chat-content" class="flex-1 flex flex-col overflow-hidden">
-                <div id="chat-messages" class="flex-1 bg-slate-50 p-4 overflow-y-auto custom-scroll space-y-3"></div>
-                <form onsubmit="App.sendChatMessage(event)" class="p-3 bg-white border-t border-gray-100 flex gap-2">
-                    <input type="text" id="chat-input" class="flex-1 bg-gray-100 border-none rounded-full px-4 text-sm focus:ring-2 focus:ring-brand-500" placeholder="Digite sua mensagem...">
-                    <button type="submit" class="w-10 h-10 bg-brand-600 text-white rounded-full hover:bg-brand-700 flex items-center justify-center shadow-md transition-transform active:scale-95">
+            <div id="chat-content" class="flex-1 flex flex-col overflow-hidden bg-slate-50">
+                <div id="chat-messages" class="flex-1 p-4 overflow-y-auto custom-scroll space-y-3"></div>
+                <form onsubmit="App.sendChatMessage(event)" class="p-3 bg-white border-t border-gray-100 flex gap-2 pb-safe">
+                    <input type="text" id="chat-input" class="flex-1 bg-gray-100 border-none rounded-full px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 outline-none" placeholder="Digite sua mensagem...">
+                    <button type="submit" class="w-11 h-11 bg-brand-600 text-white rounded-full hover:bg-brand-700 flex items-center justify-center shadow-md transition-transform active:scale-95">
                         <i class="fa-solid fa-paper-plane text-sm"></i>
                     </button>
                 </form>
@@ -196,36 +217,35 @@
     </div>
 
     <!-- MODAL AGENDAMENTO -->
-    <div id="modal-appointment" class="fixed inset-0 z-[60] hidden flex items-center justify-center">
+    <div id="modal-appointment" class="fixed inset-0 z-[60] hidden flex items-center justify-center p-4">
         <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity" onclick="Modals.close()"></div>
-        <div class="relative w-full max-w-lg bg-white rounded-2xl shadow-2xl overflow-hidden animate-fade-in m-4">
-            <div class="bg-brand-50 p-5 border-b border-brand-100 flex justify-between items-center">
+        <div class="relative w-full max-w-lg bg-white rounded-2xl shadow-2xl overflow-hidden animate-fade-in max-h-[90vh] flex flex-col">
+            <div class="bg-brand-50 p-5 border-b border-brand-100 flex justify-between items-center shrink-0">
                 <div>
                     <h3 class="text-lg font-bold text-brand-900 flex items-center gap-2"><i class="fa-regular fa-calendar-plus"></i> <span id="modal-title">Agendamento</span></h3>
                     <p class="text-sm text-brand-600" id="modal-date-display">--/--/----</p>
-                    <input type="hidden" id="modal-id"> <!-- Campo oculto para ID -->
+                    <input type="hidden" id="modal-id">
                 </div>
                 <button onclick="Modals.close()" class="text-brand-400 hover:text-brand-700 bg-white rounded-full w-8 h-8 flex items-center justify-center transition"><i class="fa-solid fa-times"></i></button>
             </div>
             
-            <div class="p-6 space-y-5">
+            <div class="p-6 space-y-5 overflow-y-auto custom-scroll">
                 <!-- Status de Confirmação -->
                 <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 flex items-center justify-between transition-colors" id="status-container">
                     <div class="flex items-center gap-2">
                         <i class="fa-solid fa-circle-check text-gray-400" id="status-icon"></i>
-                        <span class="text-sm font-bold text-gray-700" id="status-text">Pendente de Confirmação</span>
+                        <span class="text-sm font-bold text-gray-700" id="status-text">Pendente</span>
                     </div>
                     <label class="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" id="modal-confirmed" class="sr-only peer" onchange="App.toggleConfirmationUI()">
                         <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-brand-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
-                        <span class="ml-2 text-xs font-medium text-gray-900">Confirmado</span>
                     </label>
                 </div>
 
                 <!-- Tabs de Tipo -->
                 <div class="grid grid-cols-2 gap-2 p-1 bg-gray-100 rounded-xl">
                     <button onclick="App.setModalType('fisica')" id="btn-type-fisica" class="py-2 rounded-lg text-sm font-bold transition-all shadow-sm bg-white text-brand-600 border border-gray-200">
-                        Avaliação Física
+                        Física
                     </button>
                     <button onclick="App.setModalType('nutri')" id="btn-type-nutri" class="py-2 rounded-lg text-sm font-medium text-gray-500 hover:text-purple-600 transition-all">
                         Nutricional
@@ -235,14 +255,14 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="text-xs font-bold text-gray-500 uppercase mb-1 block">Horário</label>
-                        <select id="modal-time" class="w-full border-gray-300 rounded-lg text-sm p-2.5 bg-gray-50 focus:ring-brand-500 focus:border-brand-500 outline-none border">
+                        <select id="modal-time" class="w-full border-gray-300 rounded-lg text-sm p-3 bg-gray-50 focus:ring-brand-500 focus:border-brand-500 outline-none border">
                             <option>08:00</option><option>09:00</option><option>10:00</option><option>11:00</option>
                             <option>14:00</option><option>15:00</option><option>16:00</option><option>17:00</option><option>18:00</option>
                         </select>
                     </div>
                     <div>
                         <label class="text-xs font-bold text-gray-500 uppercase mb-1 block">Profissional</label>
-                        <select id="modal-professional" class="w-full border-gray-300 rounded-lg text-sm p-2.5 bg-gray-50 focus:ring-brand-500 focus:border-brand-500 outline-none border">
+                        <select id="modal-professional" class="w-full border-gray-300 rounded-lg text-sm p-3 bg-gray-50 focus:ring-brand-500 focus:border-brand-500 outline-none border">
                             <option value="Dra. Ana">Dra. Ana (Fisio)</option>
                             <option value="Nutri. Bia">Nutri. Bia</option>
                         </select>
@@ -252,29 +272,28 @@
                 <div>
                     <label class="text-xs font-bold text-gray-500 uppercase mb-1 block">Nome da Aluna</label>
                     <div class="relative">
-                        <i class="fa-solid fa-user absolute left-3 top-3 text-gray-400 text-xs"></i>
-                        <input type="text" id="modal-name" class="w-full border border-gray-300 rounded-lg pl-9 p-2.5 text-sm focus:ring-brand-500 focus:border-brand-500 outline-none" placeholder="Buscar ou cadastrar nova...">
+                        <i class="fa-solid fa-user absolute left-3 top-3.5 text-gray-400 text-xs"></i>
+                        <input type="text" id="modal-name" class="w-full border border-gray-300 rounded-lg pl-9 p-3 text-sm focus:ring-brand-500 focus:border-brand-500 outline-none" placeholder="Nome completo...">
                     </div>
                 </div>
 
                 <!-- WhatsApp Button -->
                 <div class="pt-4 border-t border-gray-100">
-                    <button onclick="App.generateWhatsapp()" class="w-full flex items-center justify-center gap-2 p-3 rounded-xl border border-green-200 bg-green-50 text-green-700 hover:bg-green-100 transition-colors group">
+                    <button onclick="App.generateWhatsapp()" class="w-full flex items-center justify-center gap-2 p-3 rounded-xl border border-green-200 bg-green-50 text-green-700 hover:bg-green-100 transition-colors group active:scale-[0.98]">
                         <i class="fa-brands fa-whatsapp text-xl group-hover:scale-110 transition-transform"></i>
                         <div class="text-left leading-tight">
                             <span class="font-bold text-sm block">Enviar Confirmação</span>
-                            <span class="text-[10px] opacity-80">Gera msg com Data, Hora e Unidade</span>
+                            <span class="text-[10px] opacity-80">Via WhatsApp</span>
                         </div>
                     </button>
                 </div>
             </div>
 
-            <div class="p-4 bg-gray-50 flex justify-end gap-3 border-t border-gray-200">
-                <button onclick="Modals.close()" class="px-4 py-2 text-gray-500 hover:bg-gray-200 rounded-lg text-sm font-medium transition">Cancelar</button>
-                <button onclick="App.saveAppointment()" class="px-6 py-2 bg-brand-600 text-white rounded-lg text-sm font-bold shadow-md hover:bg-brand-700 transition">Salvar</button>
+            <div class="p-4 bg-gray-50 flex justify-end gap-3 border-t border-gray-200 shrink-0 pb-safe">
+                <button onclick="Modals.close()" class="px-4 py-3 text-gray-500 hover:bg-gray-200 rounded-lg text-sm font-medium transition w-full md:w-auto">Cancelar</button>
+                <button onclick="App.saveAppointment()" class="px-6 py-3 bg-brand-600 text-white rounded-lg text-sm font-bold shadow-md hover:bg-brand-700 transition w-full md:w-auto">Salvar</button>
             </div>
         </div>
     </div>
-
 </body>
 </html>
