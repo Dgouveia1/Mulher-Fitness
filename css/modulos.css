@@ -1,0 +1,238 @@
+/* --- CHAT MODULE --- */
+
+/* Estados do Chat */
+.chat-expanded {
+    transform: translateY(0) scale(1) !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}
+
+.chat-minimized {
+    transform: translateY(calc(100% - 70px)) !important; 
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    cursor: pointer;
+}
+
+.chat-minimized #chat-header {
+    background-color: #be185d;
+}
+
+.msg-bubble {
+    padding: 6px 10px 6px 10px;
+    border-radius: 8px;
+    position: relative;
+    max-width: 85%;
+    word-wrap: break-word;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Mensagem do Usuário (Enviada) - Verde/Brand Claro */
+.msg-out {
+    background-color: #dcf8c6; /* Verde estilo WhatsApp */
+    align-self: flex-end;
+    border-top-right-radius: 0;
+}
+
+/* Mensagem de Outros (Recebida) - Branco */
+.msg-in {
+    background-color: #ffffff;
+    align-self: flex-start;
+    border-top-left-radius: 0;
+}
+
+.msg-meta {
+    font-size: 10px;
+    color: rgba(0, 0, 0, 0.45);
+    align-self: flex-end;
+    margin-top: 2px;
+    margin-left: 8px; /* Espaço entre texto e hora se ficarem na mesma linha */
+    display: flex;
+    align-items: center;
+    line-height: 1;
+    float: right; /* Truque para hora flutuar ao fim do texto se possível */
+}
+
+/* --- CALENDAR MODULE (Google Calendar Style) --- */
+
+/* Grid Mensal */
+.calendar-month-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    background-color: #e5e7eb;
+    gap: 1px;
+    border: 1px solid #e5e7eb;
+}
+
+.calendar-day-cell {
+    background-color: white;
+    min-height: 100px;
+    display: flex;
+    flex-direction: column;
+    padding: 2px;
+}
+
+.calendar-day-header {
+    text-align: center;
+    font-size: 11px;
+    padding: 4px;
+    color: #6b7280;
+}
+
+.day-number {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    line-height: 24px;
+    border-radius: 50%;
+    font-weight: 600;
+    font-size: 12px;
+    margin-bottom: 2px;
+}
+
+.day-number.today {
+    background-color: #be185d;
+    color: white;
+}
+
+.calendar-event-chip {
+    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+    font-weight: 500;
+    border-left: 3px solid transparent;
+}
+
+.calendar-event-chip:hover {
+    filter: brightness(0.95);
+}
+
+.chip-fisica { background-color: #fce7f3; color: #9d174d; border-left-color: #db2777; }
+.chip-nutri { background-color: #f3e8ff; color: #6b21a8; border-left-color: #9333ea; }
+
+/* Grid Semanal (Time Grid) */
+.week-view-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    background: white;
+}
+
+.week-header {
+    display: flex;
+    border-bottom: 1px solid #e5e7eb;
+    padding-left: 50px;
+    flex-shrink: 0;
+}
+
+.week-header-cell {
+    flex: 1;
+    text-align: center;
+    padding: 8px 0;
+    border-left: 1px solid #e5e7eb;
+}
+
+.week-body {
+    flex: 1;
+    overflow-y: auto;
+    position: relative;
+    display: flex;
+}
+
+.time-column {
+    width: 50px;
+    flex-shrink: 0;
+    background-color: #fff;
+    border-right: 1px solid #e5e7eb;
+}
+
+.time-slot-label {
+    height: 60px;
+    text-align: right;
+    padding-right: 8px;
+    font-size: 10px;
+    color: #9ca3af;
+    position: relative;
+    top: -6px;
+}
+
+.days-grid {
+    flex: 1;
+    display: flex;
+    position: relative;
+    background-size: 100% 60px;
+    background-image: linear-gradient(to bottom, #e5e7eb 1px, transparent 1px);
+}
+
+.day-column {
+    flex: 1;
+    border-left: 1px solid #e5e7eb;
+    position: relative;
+    height: 960px;
+}
+
+.week-event {
+    position: absolute;
+    left: 2px;
+    right: 2px;
+    border-radius: 4px;
+    padding: 4px;
+    font-size: 10px;
+    overflow: hidden;
+    cursor: pointer;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    border-left: 3px solid;
+    z-index: 10;
+    transition: transform 0.1s;
+}
+
+.week-event:hover {
+    z-index: 20;
+    transform: scale(1.02);
+}
+
+.current-time-indicator {
+    position: absolute;
+    left: 0;
+    right: 0;
+    border-top: 2px solid #ef4444;
+    z-index: 30;
+    pointer-events: none;
+}
+
+.current-time-indicator::before {
+    content: '';
+    position: absolute;
+    left: -5px;
+    top: -5px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #ef4444;
+}
+
+/* --- DASHBOARD --- */
+.metric-card {
+    transition: transform 0.2s;
+}
+.metric-card:hover {
+    transform: translateY(-2px);
+}
+.chart-bar-container {
+    height: 8px;
+    background: #f1f5f9;
+    border-radius: 4px;
+    overflow: hidden;
+}
+.chart-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 1s ease-out;
+}
