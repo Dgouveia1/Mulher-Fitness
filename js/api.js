@@ -13,7 +13,7 @@ class Store {
             data: {
                 appointments: [],
                 messages: [],
-                clients: [], // Novo array de clientes
+                clients: [],
                 holidays: CONFIG.HOLIDAYS
             },
             ui: {
@@ -28,7 +28,6 @@ class Store {
         return this.state;
     }
 
-    // Atualiza o estado e notifica ouvintes
     set(updater) {
         const oldState = { ...this.state };
         if (typeof updater === 'function') {
@@ -52,7 +51,6 @@ class Store {
 }
 
 export const appStore = new Store();
-// Compatibilidade com código antigo que acessa State diretamente
 export const State = appStore.state;
 
 // --- API WRAPPER & ERROR HANDLING ---
@@ -71,11 +69,32 @@ export const API = {
         });
     },
 
+    // Auxiliar para converter formato Time (HH:MM:SS) para Minutos (Int)
+    parseDurationToMinutes(timeStr) {
+        if (!timeStr) return 60; // Padrão
+        try {
+            const [h, m] = timeStr.split(':').map(Number);
+            return (h * 60) + m;
+        } catch (e) {
+            return 60;
+        }
+    },
+
+    // Auxiliar para converter Minutos (Int) para Time (HH:MM:00)
+    formatMinutesToTime(minutes) {
+        const m = parseInt(minutes);
+        if (isNaN(m)) return '01:00:00';
+        
+        const hours = Math.floor(m / 60);
+        const mins = m % 60;
+        
+        return `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}:00`;
+    },
+
     async fetchAppointments(force = false) {
         const now = Date.now();
         const { ui } = appStore.get();
 
-        // Cache simples: evita fetch se dados tem menos de 1 minuto e não foi forçado
         if (!force && (now - ui.lastFetch < 60000)) {
             console.log('[API] Using cached appointments');
             return true;
@@ -88,13 +107,13 @@ export const API = {
             const { data, error } = await supabaseClient.from('appointments').select('*').limit(1000);
             if (error) throw error;
 
-            // [FIX] Mapeamento Reverso: professional -> client_phone
-            // Como a coluna client_phone não existe, usamos professional para ler o telefone
+            // [CORREÇÃO] Normalização dos dados vindos do banco
             const normalizedData = data.map(app => ({
                 ...app,
-                client_phone: app.client_phone || app.professional || '',
-                // Normaliza duração se existir no banco (no futuro campo 'duration') ou default 60
-                duration: app.duration || 60
+                // Mapeia a coluna 'telefone' para 'client_phone' usado na aplicação
+                client_phone: app.telefone || app.client_phone || '', 
+                // Converte o formato TIME (01:00:00) do banco para INT (60) da aplicação
+                duration: this.parseDurationToMinutes(app.duration)
             }));
 
             appStore.set(s => ({
@@ -105,7 +124,7 @@ export const API = {
             return true;
         } catch (error) {
             console.error('[API] Error fetching appointments:', error);
-            showToast('Erro ao carregar agendamentos. Tente novamente.', 'error');
+            showToast('Erro ao carregar agendamentos.', 'error');
             appStore.set(s => ({ ...s, ui: { ...s.ui, loading: false } }));
             return false;
         }
@@ -113,11 +132,11 @@ export const API = {
 
     async fetchClients() {
         try {
-            // Tenta buscar da tabela clients. Se não existir, vai dar erro, mas tratamos.
             const { data, error } = await supabaseClient.from('clients').select('*').order('name', { ascending: true });
             
             if (error) {
-                console.warn('[API] Tabela clientes não encontrada ou erro:', error.message);
+                // Silencia erro se a tabela não existir ainda, para não travar o app
+                console.warn('[API] Info: Tabela de clientes indisponível ou vazia.'); 
                 return;
             }
 
@@ -128,16 +147,18 @@ export const API = {
                 }));
             }
         } catch (error) {
-            console.warn('[API] Erro ao buscar clientes (feature opcional se tabela nao existir):', error);
+            console.warn('[API] Erro fetch clients:', error);
         }
     },
 
-    // Nova função para sincronizar dados do cliente após agendamento
     async syncClientData(clientData) {
         if (!clientData.name) return;
 
         try {
-            // Verifica se cliente existe pelo nome (simplificado)
+            // Verifica se a tabela existe tentando um select simples primeiro
+            const { error: checkError } = await supabaseClient.from('clients').select('id').limit(1);
+            if (checkError && checkError.code === '42P01') return; // Tabela não existe
+
             const { data: existingClients } = await supabaseClient
                 .from('clients')
                 .select('id')
@@ -151,20 +172,15 @@ export const API = {
             };
 
             if (existingClients && existingClients.length > 0) {
-                // Atualiza (segundo agendamento)
-                console.log('[API] Atualizando cliente existente:', clientData.name);
                 await supabaseClient.from('clients').update(payload).eq('id', existingClients[0].id);
             } else {
-                // Insere (novo cliente)
-                console.log('[API] Criando novo cliente:', clientData.name);
                 await supabaseClient.from('clients').insert(payload);
             }
             
-            // Atualiza lista local
             this.fetchClients();
 
         } catch (error) {
-            console.warn('[API] Erro ao sincronizar cliente:', error);
+            console.warn('[API] Sync client error:', error);
         }
     },
 
@@ -189,7 +205,6 @@ export const API = {
         if (!user) return { error: 'Usuário não autenticado' };
 
         if (!profile) {
-            console.log('[API] Perfil não encontrado na store, buscando...');
             const { data } = await supabaseClient.from('profiles').select('*').eq('id', user.id).single();
             if (data) {
                 profile = data;
@@ -218,42 +233,43 @@ export const API = {
     async saveAppointment(appointmentData) {
         appStore.set(s => ({ ...s, ui: { ...s.ui, loading: true } }));
         try {
-            let query = supabaseClient.from('appointments');
+            const query = supabaseClient.from('appointments');
             let result;
 
-            // Extrai dados do cliente para sincronizar depois
             const clientInfo = {
                 name: appointmentData.client_name,
                 phone: appointmentData.client_phone
             };
 
-            const payload = { ...appointmentData };
+            // Prepara o payload para corresponder ao Schema do Banco
+            const payload = { 
+                date: appointmentData.date,
+                time: appointmentData.time,
+                client_name: appointmentData.client_name,
+                type: appointmentData.type,
+                status: appointmentData.status,
+                unit: appointmentData.unit,
+                // [CORREÇÃO] Mapeia client_phone para telefone
+                telefone: appointmentData.client_phone, 
+                // [CORREÇÃO] Converte INT (60) para TIME (01:00:00)
+                duration: this.formatMinutesToTime(appointmentData.duration)
+            };
             
-            // Map phone to professional column (Workaround for schema mismatch)
-            if (payload.client_phone) {
-                payload.professional = payload.client_phone;
-            }
-            delete payload.client_phone;
-            
-            // Se o schema do banco não tiver 'duration', isso pode dar erro se não tratado no Supabase
-            // Mas vamos enviar assumindo que o usuário vai adicionar a coluna ou aceitar o erro silencioso se for strict
-            // Para evitar crash, se não tiver certeza do schema, pode remover, mas o usuário pediu para inserir a regra.
-            // Vamos manter.
+            // Remove campos que não existem no banco
+            // 'professional' foi removido pois não consta no schema CSV
+            // 'client_phone' foi mapeado para 'telefone'
 
-            if (payload.id) {
-                // Update
-                const id = payload.id;
-                delete payload.id; 
-                result = await query.update(payload).eq('id', id);
+            if (appointmentData.id) {
+                result = await query.update(payload).eq('id', appointmentData.id);
             } else {
-                // Insert
-                delete payload.id; 
                 result = await query.insert(payload);
             }
 
-            if (result.error) throw result.error;
+            if (result.error) {
+                console.error('[API] Supabase Error:', result.error); // Log detalhado
+                throw result.error;
+            }
 
-            // --- Sincroniza Cliente ---
             await this.syncClientData(clientInfo);
 
             appStore.set(s => ({ ...s, ui: { ...s.ui, lastFetch: 0 } }));
@@ -263,7 +279,10 @@ export const API = {
             return true;
         } catch (error) {
             console.error('[API] Error saving appointment:', error);
-            showToast('Erro ao salvar agendamento.', 'error');
+            let msg = 'Erro ao salvar agendamento.';
+            if (error.code === '22007') msg = 'Formato de hora inválido.';
+            if (error.code === 'PGRST204') msg = 'Erro de coluna no banco de dados.';
+            showToast(msg, 'error');
             return false;
         } finally {
             appStore.set(s => ({ ...s, ui: { ...s.ui, loading: false } }));
