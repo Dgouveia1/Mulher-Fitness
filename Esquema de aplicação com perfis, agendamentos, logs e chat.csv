@@ -1,48 +1,59 @@
 categoria,objeto,detalhes
-1. TABELAS E COLUNAS,TABELA: appointments,COLUNA: type | TIPO: text | NULÁVEL: YES | PADRÃO: N/A | DESCRIÇÃO: N/A
-1. TABELAS E COLUNAS,TABELA: appointments,COLUNA: time | TIPO: text | NULÁVEL: NO | PADRÃO: N/A | DESCRIÇÃO: N/A
-1. TABELAS E COLUNAS,TABELA: appointments,COLUNA: telefone | TIPO: text | NULÁVEL: YES | PADRÃO: N/A | DESCRIÇÃO: N/A
-1. TABELAS E COLUNAS,TABELA: appointments,COLUNA: id | TIPO: bigint | NULÁVEL: NO | PADRÃO: N/A | DESCRIÇÃO: N/A
-1. TABELAS E COLUNAS,TABELA: appointments,COLUNA: date | TIPO: date | NULÁVEL: NO | PADRÃO: N/A | DESCRIÇÃO: N/A
 1. TABELAS E COLUNAS,TABELA: appointments,"COLUNA: created_at | TIPO: timestamp with time zone | NULÁVEL: YES | PADRÃO: timezone('utc'::text, now()) | DESCRIÇÃO: N/A"
 1. TABELAS E COLUNAS,TABELA: appointments,COLUNA: duration | TIPO: time without time zone | NULÁVEL: YES | PADRÃO: N/A | DESCRIÇÃO: N/A
-1. TABELAS E COLUNAS,TABELA: appointments,COLUNA: client_name | TIPO: text | NULÁVEL: NO | PADRÃO: N/A | DESCRIÇÃO: N/A
-1. TABELAS E COLUNAS,TABELA: appointments,COLUNA: unit | TIPO: text | NULÁVEL: NO | PADRÃO: N/A | DESCRIÇÃO: N/A
-1. TABELAS E COLUNAS,TABELA: appointments,COLUNA: status | TIPO: text | NULÁVEL: YES | PADRÃO: 'pending'::text | DESCRIÇÃO: N/A
 1. TABELAS E COLUNAS,TABELA: appointments,COLUNA: professional | TIPO: text | NULÁVEL: YES | PADRÃO: N/A | DESCRIÇÃO: N/A
-1. TABELAS E COLUNAS,TABELA: audit_logs,COLUNA: action | TIPO: text | NULÁVEL: NO | PADRÃO: N/A | DESCRIÇÃO: N/A
+1. TABELAS E COLUNAS,TABELA: appointments,COLUNA: telefone | TIPO: text | NULÁVEL: YES | PADRÃO: N/A | DESCRIÇÃO: N/A
+1. TABELAS E COLUNAS,TABELA: appointments,COLUNA: unit | TIPO: text | NULÁVEL: NO | PADRÃO: N/A | DESCRIÇÃO: N/A
+1. TABELAS E COLUNAS,TABELA: appointments,COLUNA: time | TIPO: text | NULÁVEL: NO | PADRÃO: N/A | DESCRIÇÃO: N/A
+1. TABELAS E COLUNAS,TABELA: appointments,COLUNA: client_name | TIPO: text | NULÁVEL: NO | PADRÃO: N/A | DESCRIÇÃO: N/A
+1. TABELAS E COLUNAS,TABELA: appointments,COLUNA: type | TIPO: text | NULÁVEL: YES | PADRÃO: N/A | DESCRIÇÃO: N/A
+1. TABELAS E COLUNAS,TABELA: appointments,COLUNA: status | TIPO: text | NULÁVEL: YES | PADRÃO: 'pending'::text | DESCRIÇÃO: N/A
+1. TABELAS E COLUNAS,TABELA: appointments,COLUNA: id | TIPO: bigint | NULÁVEL: NO | PADRÃO: N/A | DESCRIÇÃO: N/A
+1. TABELAS E COLUNAS,TABELA: appointments,COLUNA: date | TIPO: date | NULÁVEL: NO | PADRÃO: N/A | DESCRIÇÃO: N/A
 1. TABELAS E COLUNAS,TABELA: audit_logs,COLUNA: id | TIPO: bigint | NULÁVEL: NO | PADRÃO: N/A | DESCRIÇÃO: N/A
-1. TABELAS E COLUNAS,TABELA: audit_logs,"COLUNA: created_at | TIPO: timestamp with time zone | NULÁVEL: YES | PADRÃO: timezone('utc'::text, now()) | DESCRIÇÃO: N/A"
-1. TABELAS E COLUNAS,TABELA: audit_logs,COLUNA: user_email | TIPO: text | NULÁVEL: YES | PADRÃO: N/A | DESCRIÇÃO: N/A
 1. TABELAS E COLUNAS,TABELA: audit_logs,COLUNA: user_id | TIPO: uuid | NULÁVEL: YES | PADRÃO: N/A | DESCRIÇÃO: N/A
 1. TABELAS E COLUNAS,TABELA: audit_logs,COLUNA: details | TIPO: jsonb | NULÁVEL: YES | PADRÃO: N/A | DESCRIÇÃO: N/A
-1. TABELAS E COLUNAS,TABELA: clients,COLUNA: email | TIPO: text | NULÁVEL: YES | PADRÃO: N/A | DESCRIÇÃO: N/A
+1. TABELAS E COLUNAS,TABELA: audit_logs,"COLUNA: created_at | TIPO: timestamp with time zone | NULÁVEL: YES | PADRÃO: timezone('utc'::text, now()) | DESCRIÇÃO: N/A"
+1. TABELAS E COLUNAS,TABELA: audit_logs,COLUNA: action | TIPO: text | NULÁVEL: NO | PADRÃO: N/A | DESCRIÇÃO: N/A
+1. TABELAS E COLUNAS,TABELA: audit_logs,COLUNA: user_email | TIPO: text | NULÁVEL: YES | PADRÃO: N/A | DESCRIÇÃO: N/A
+1. TABELAS E COLUNAS,TABELA: blocked_days,COLUNA: id | TIPO: uuid | NULÁVEL: NO | PADRÃO: gen_random_uuid() | DESCRIÇÃO: N/A
+1. TABELAS E COLUNAS,TABELA: blocked_days,COLUNA: date | TIPO: date | NULÁVEL: NO | PADRÃO: N/A | DESCRIÇÃO: N/A
+1. TABELAS E COLUNAS,TABELA: blocked_days,"COLUNA: created_at | TIPO: timestamp with time zone | NULÁVEL: YES | PADRÃO: timezone('utc'::text, now()) | DESCRIÇÃO: N/A"
+1. TABELAS E COLUNAS,TABELA: blocked_days,COLUNA: type | TIPO: text | NULÁVEL: NO | PADRÃO: N/A | DESCRIÇÃO: N/A
+1. TABELAS E COLUNAS,TABELA: blocked_days,COLUNA: reason | TIPO: text | NULÁVEL: NO | PADRÃO: N/A | DESCRIÇÃO: N/A
+1. TABELAS E COLUNAS,TABELA: clients,COLUNA: id | TIPO: uuid | NULÁVEL: NO | PADRÃO: gen_random_uuid() | DESCRIÇÃO: N/A
 1. TABELAS E COLUNAS,TABELA: clients,COLUNA: last_visit | TIPO: date | NULÁVEL: YES | PADRÃO: N/A | DESCRIÇÃO: N/A
 1. TABELAS E COLUNAS,TABELA: clients,"COLUNA: created_at | TIPO: timestamp with time zone | NULÁVEL: YES | PADRÃO: timezone('utc'::text, now()) | DESCRIÇÃO: N/A"
 1. TABELAS E COLUNAS,TABELA: clients,COLUNA: name | TIPO: text | NULÁVEL: NO | PADRÃO: N/A | DESCRIÇÃO: N/A
 1. TABELAS E COLUNAS,TABELA: clients,COLUNA: phone | TIPO: text | NULÁVEL: YES | PADRÃO: N/A | DESCRIÇÃO: N/A
-1. TABELAS E COLUNAS,TABELA: clients,COLUNA: id | TIPO: uuid | NULÁVEL: NO | PADRÃO: gen_random_uuid() | DESCRIÇÃO: N/A
+1. TABELAS E COLUNAS,TABELA: clients,COLUNA: email | TIPO: text | NULÁVEL: YES | PADRÃO: N/A | DESCRIÇÃO: N/A
 1. TABELAS E COLUNAS,TABELA: messages,COLUNA: sender_name | TIPO: text | NULÁVEL: YES | PADRÃO: N/A | DESCRIÇÃO: N/A
+1. TABELAS E COLUNAS,TABELA: messages,COLUNA: id | TIPO: bigint | NULÁVEL: NO | PADRÃO: N/A | DESCRIÇÃO: N/A
+1. TABELAS E COLUNAS,TABELA: messages,COLUNA: recipient_id | TIPO: uuid | NULÁVEL: YES | PADRÃO: N/A | DESCRIÇÃO: N/A
 1. TABELAS E COLUNAS,TABELA: messages,COLUNA: content | TIPO: text | NULÁVEL: NO | PADRÃO: N/A | DESCRIÇÃO: N/A
 1. TABELAS E COLUNAS,TABELA: messages,"COLUNA: created_at | TIPO: timestamp with time zone | NULÁVEL: YES | PADRÃO: timezone('utc'::text, now()) | DESCRIÇÃO: N/A"
 1. TABELAS E COLUNAS,TABELA: messages,COLUNA: sender_id | TIPO: uuid | NULÁVEL: YES | PADRÃO: N/A | DESCRIÇÃO: N/A
-1. TABELAS E COLUNAS,TABELA: messages,COLUNA: id | TIPO: bigint | NULÁVEL: NO | PADRÃO: N/A | DESCRIÇÃO: N/A
-1. TABELAS E COLUNAS,TABELA: profiles,"COLUNA: created_at | TIPO: timestamp with time zone | NULÁVEL: YES | PADRÃO: timezone('utc'::text, now()) | DESCRIÇÃO: N/A"
 1. TABELAS E COLUNAS,TABELA: profiles,COLUNA: id | TIPO: uuid | NULÁVEL: NO | PADRÃO: N/A | DESCRIÇÃO: N/A
-1. TABELAS E COLUNAS,TABELA: profiles,COLUNA: email | TIPO: text | NULÁVEL: YES | PADRÃO: N/A | DESCRIÇÃO: N/A
 1. TABELAS E COLUNAS,TABELA: profiles,COLUNA: role | TIPO: text | NULÁVEL: YES | PADRÃO: 'operacional_user'::text | DESCRIÇÃO: N/A
+1. TABELAS E COLUNAS,TABELA: profiles,COLUNA: email | TIPO: text | NULÁVEL: YES | PADRÃO: N/A | DESCRIÇÃO: N/A
+1. TABELAS E COLUNAS,TABELA: profiles,"COLUNA: created_at | TIPO: timestamp with time zone | NULÁVEL: YES | PADRÃO: timezone('utc'::text, now()) | DESCRIÇÃO: N/A"
 1. TABELAS E COLUNAS,TABELA: profiles,COLUNA: unit | TIPO: text | NULÁVEL: YES | PADRÃO: 'Central'::text | DESCRIÇÃO: N/A
 2. CONSTRAINTS (CHAVES),TABELA: appointments,CONSTRAINT: appointments_pkey | TIPO: PRIMARY KEY | COLUNA(S): id
 2. CONSTRAINTS (CHAVES),TABELA: audit_logs,CONSTRAINT: audit_logs_pkey | TIPO: PRIMARY KEY | COLUNA(S): id
 2. CONSTRAINTS (CHAVES),TABELA: audit_logs,null
+2. CONSTRAINTS (CHAVES),TABELA: blocked_days,CONSTRAINT: blocked_days_pkey | TIPO: PRIMARY KEY | COLUNA(S): id
 2. CONSTRAINTS (CHAVES),TABELA: clients,CONSTRAINT: clients_pkey | TIPO: PRIMARY KEY | COLUNA(S): id
+2. CONSTRAINTS (CHAVES),TABELA: messages,null
 2. CONSTRAINTS (CHAVES),TABELA: messages,CONSTRAINT: messages_pkey | TIPO: PRIMARY KEY | COLUNA(S): id
 2. CONSTRAINTS (CHAVES),TABELA: messages,null
 2. CONSTRAINTS (CHAVES),TABELA: profiles,null
 2. CONSTRAINTS (CHAVES),TABELA: profiles,CONSTRAINT: profiles_pkey | TIPO: PRIMARY KEY | COLUNA(S): id
 3. ÍNDICES,TABELA: appointments,ÍNDICE: appointments_pkey | DEFINIÇÃO: CREATE UNIQUE INDEX appointments_pkey ON public.appointments USING btree (id)
 3. ÍNDICES,TABELA: audit_logs,ÍNDICE: audit_logs_pkey | DEFINIÇÃO: CREATE UNIQUE INDEX audit_logs_pkey ON public.audit_logs USING btree (id)
+3. ÍNDICES,TABELA: blocked_days,ÍNDICE: idx_blocked_days_date | DEFINIÇÃO: CREATE INDEX idx_blocked_days_date ON public.blocked_days USING btree (date)
+3. ÍNDICES,TABELA: blocked_days,ÍNDICE: blocked_days_pkey | DEFINIÇÃO: CREATE UNIQUE INDEX blocked_days_pkey ON public.blocked_days USING btree (id)
 3. ÍNDICES,TABELA: clients,ÍNDICE: clients_pkey | DEFINIÇÃO: CREATE UNIQUE INDEX clients_pkey ON public.clients USING btree (id)
+3. ÍNDICES,TABELA: messages,ÍNDICE: idx_messages_recipient | DEFINIÇÃO: CREATE INDEX idx_messages_recipient ON public.messages USING btree (recipient_id)
 3. ÍNDICES,TABELA: messages,ÍNDICE: messages_pkey | DEFINIÇÃO: CREATE UNIQUE INDEX messages_pkey ON public.messages USING btree (id)
 3. ÍNDICES,TABELA: profiles,ÍNDICE: profiles_pkey | DEFINIÇÃO: CREATE UNIQUE INDEX profiles_pkey ON public.profiles USING btree (id)
 4. FUNÇÕES (RPC),FUNÇÃO: handle_new_user,"CREATE OR REPLACE FUNCTION public.handle_new_user()
@@ -58,10 +69,14 @@ END;
 $function$
 "
 6. POLÍTICAS DE SEGURANÇA (RLS),TABELA: appointments,POLÍTICA: Enable access for authenticated users | COMANDO: ALL | PERMISSÃO: PERMISSIVE | PARA: public | USANDO (USING): (auth.role() = 'authenticated'::text) | VERIFICANDO (WITH CHECK): N/A
+6. POLÍTICAS DE SEGURANÇA (RLS),TABELA: audit_logs,POLÍTICA: Insert logs | COMANDO: INSERT | PERMISSÃO: PERMISSIVE | PARA: public | USANDO (USING): N/A | VERIFICANDO (WITH CHECK): (auth.role() = 'authenticated'::text)
 6. POLÍTICAS DE SEGURANÇA (RLS),TABELA: audit_logs,"POLÍTICA: Admin view logs | COMANDO: SELECT | PERMISSÃO: PERMISSIVE | PARA: public | USANDO (USING): (EXISTS ( SELECT 1
    FROM profiles
   WHERE ((profiles.id = auth.uid()) AND (profiles.role = 'admin_user'::text)))) | VERIFICANDO (WITH CHECK): N/A"
-6. POLÍTICAS DE SEGURANÇA (RLS),TABELA: audit_logs,POLÍTICA: Insert logs | COMANDO: INSERT | PERMISSÃO: PERMISSIVE | PARA: public | USANDO (USING): N/A | VERIFICANDO (WITH CHECK): (auth.role() = 'authenticated'::text)
-6. POLÍTICAS DE SEGURANÇA (RLS),TABELA: messages,POLÍTICA: Chat access | COMANDO: ALL | PERMISSÃO: PERMISSIVE | PARA: public | USANDO (USING): (auth.role() = 'authenticated'::text) | VERIFICANDO (WITH CHECK): N/A
-6. POLÍTICAS DE SEGURANÇA (RLS),TABELA: profiles,POLÍTICA: Public profiles | COMANDO: SELECT | PERMISSÃO: PERMISSIVE | PARA: public | USANDO (USING): true | VERIFICANDO (WITH CHECK): N/A
+6. POLÍTICAS DE SEGURANÇA (RLS),TABELA: blocked_days,"POLÍTICA: Manage blocked days | COMANDO: ALL | PERMISSÃO: PERMISSIVE | PARA: authenticated | USANDO (USING): (EXISTS ( SELECT 1
+   FROM profiles
+  WHERE ((profiles.id = auth.uid()) AND (profiles.role = 'admin_user'::text)))) | VERIFICANDO (WITH CHECK): N/A"
+6. POLÍTICAS DE SEGURANÇA (RLS),TABELA: blocked_days,POLÍTICA: View blocked days | COMANDO: SELECT | PERMISSÃO: PERMISSIVE | PARA: authenticated | USANDO (USING): true | VERIFICANDO (WITH CHECK): N/A
+6. POLÍTICAS DE SEGURANÇA (RLS),TABELA: messages,POLÍTICA: Chat access | COMANDO: ALL | PERMISSÃO: PERMISSIVE | PARA: authenticated | USANDO (USING): ((recipient_id IS NULL) OR (sender_id = auth.uid()) OR (recipient_id = auth.uid())) | VERIFICANDO (WITH CHECK): N/A
 6. POLÍTICAS DE SEGURANÇA (RLS),TABELA: profiles,POLÍTICA: Self update | COMANDO: UPDATE | PERMISSÃO: PERMISSIVE | PARA: public | USANDO (USING): (auth.uid() = id) | VERIFICANDO (WITH CHECK): N/A
+6. POLÍTICAS DE SEGURANÇA (RLS),TABELA: profiles,POLÍTICA: Public profiles | COMANDO: SELECT | PERMISSÃO: PERMISSIVE | PARA: public | USANDO (USING): true | VERIFICANDO (WITH CHECK): N/A

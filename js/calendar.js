@@ -34,6 +34,14 @@ export const CalendarModule = {
         });
     },
 
+    // Helper para formatar data localmente YYYY-MM-DD sem converter para UTC
+    formatDateLocal(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    },
+
     render(container) {
         if (!container) container = document.getElementById('view-container');
         if (!container) return;
@@ -134,10 +142,12 @@ export const CalendarModule = {
         }
 
         const appointments = appStore.get().data.appointments;
+        const todayStr = this.formatDateLocal(new Date());
 
         for (let i = 1; i <= daysInMonth; i++) {
+            // CORREÇÃO: Formatação manual para evitar fuso horário
             const dateStr = `${year}-${(month + 1).toString().padStart(2, '0')}-${i.toString().padStart(2, '0')}`;
-            const isToday = new Date().toISOString().split('T')[0] === dateStr;
+            const isToday = todayStr === dateStr;
             const blockedInfo = this.isDayBlocked(dateStr);
             const isBlocked = !!blockedInfo;
 
@@ -183,13 +193,15 @@ export const CalendarModule = {
         const appointments = appStore.get().data.appointments;
         const totalHours = this.endHour - this.startHour;
         const hourHeight = 60; 
+        const todayStr = this.formatDateLocal(new Date());
 
         let html = `
             <div class="week-view-container">
                 <div class="week-header bg-white">
                     ${weekDays.map(d => {
-                        const dateStr = d.toISOString().split('T')[0];
-                        const isToday = dateStr === new Date().toISOString().split('T')[0];
+                        // CORREÇÃO: Usar formatação local em vez de toISOString
+                        const dateStr = this.formatDateLocal(d);
+                        const isToday = dateStr === todayStr;
                         const blocked = this.isDayBlocked(dateStr);
                         
                         return `
@@ -210,8 +222,9 @@ export const CalendarModule = {
         `;
 
         weekDays.forEach((day, index) => {
-            const dateStr = day.toISOString().split('T')[0];
-            const isToday = dateStr === new Date().toISOString().split('T')[0];
+            // CORREÇÃO: Usar formatação local
+            const dateStr = this.formatDateLocal(day);
+            const isToday = dateStr === todayStr;
             const blockedInfo = this.isDayBlocked(dateStr);
             const isBlocked = !!blockedInfo;
             const dayApps = appointments.filter(a => a.date === dateStr);

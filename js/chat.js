@@ -72,7 +72,8 @@ export const ChatModule = {
 
         users.forEach(u => {
             if (u.id === myId) return;
-            const name = u.email.split('@')[0];
+            // CORREÇÃO: Usa o nome do perfil se disponível
+            const name = u.name || u.email.split('@')[0];
             const role = u.role === 'admin_user' ? 'Admin' : 'Staff';
             
             html += `

@@ -275,8 +275,8 @@ export const API = {
     // --- CHAT (Global + Privado) ---
     async fetchUsersList() {
         try {
-            // Traz perfis para montar a lista de chat
-            const { data, error } = await supabaseClient.from('profiles').select('id, email, role, unit');
+            // CORREÇÃO: Busca também o campo 'name'
+            const { data, error } = await supabaseClient.from('profiles').select('id, email, role, unit, name');
             if (!error && data) {
                 appStore.set(s => ({ ...s, data: { ...s.data, users_list: data } }));
             }
@@ -321,7 +321,8 @@ export const API = {
             }
         }
 
-        const userName = user.email.split('@')[0];
+        // CORREÇÃO: Usa o nome do perfil se existir, senão usa parte do email
+        const userName = profile?.name || user.email.split('@')[0];
         const unitName = profile?.unit || 'Sem Unidade';
         const senderComposite = `${userName} | ${unitName}`;
 
