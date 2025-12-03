@@ -15,13 +15,38 @@ export const DashboardModule = {
         }
     },
 
-    // Função para extrair métricas do Dashboard (Solicitação #2)
+    // Helper para formatar data seguramente (DD/MM/AAAA)
+    formatDateDisplay(dateStr) {
+        if (!dateStr) return '';
+        // Garante que pega apenas a parte da data YYYY-MM-DD, ignorando hora (T...)
+        const cleanDate = dateStr.split('T')[0];
+        if (cleanDate.includes('-')) {
+            const [y, m, d] = cleanDate.split('-');
+            return `${d}/${m}/${y}`;
+        }
+        return dateStr;
+    },
+
+    // Função para extrair métricas do Dashboard
     calculateMetrics(appointments) {
-        const today = new Date().toISOString().split('T')[0];
-        const currentMonth = new Date().getMonth();
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const today = `${year}-${month}-${day}`;
         
-        const todayApps = appointments.filter(a => a.date === today);
-        const monthApps = appointments.filter(a => new Date(a.date).getMonth() === currentMonth);
+        const currentMonth = now.getMonth();
+        
+        // Compara apenas a parte da data
+        const todayApps = appointments.filter(a => a.date && a.date.split('T')[0] === today);
+        
+        const monthApps = appointments.filter(a => {
+            if (!a.date) return false;
+            const cleanDate = a.date.split('T')[0];
+            const appMonth = parseInt(cleanDate.split('-')[1]) - 1; 
+            return appMonth === currentMonth;
+        });
+        
         const pendingCount = appointments.filter(a => a.status === 'pending').length;
         const confirmedCount = appointments.filter(a => a.status === 'confirmed').length;
         const conversionRate = monthApps.length ? Math.round((confirmedCount / appointments.length) * 100) : 0;
@@ -141,8 +166,11 @@ export const DashboardModule = {
     },
 
     getConfirmationsTemplate(appointments) {
-        // Inicialmente mostra os pendentes, mas permite filtrar tudo
-        const pending = appointments.filter(a => a.status === 'pending').sort((a,b) => a.date.localeCompare(b.date));
+        const pending = appointments.filter(a => a.status === 'pending').sort((a,b) => {
+            const dateA = a.date ? a.date.split('T')[0] : '';
+            const dateB = b.date ? b.date.split('T')[0] : '';
+            return dateA.localeCompare(dateB);
+        });
         
         return `
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden animate-fade-in h-full flex flex-col">
@@ -152,7 +180,6 @@ export const DashboardModule = {
                         <p class="text-sm text-gray-500">Gerencie e filtre os agendamentos</p>
                     </div>
                     
-                    <!-- Filtros (Solicitação #3) -->
                     <div class="flex gap-2 items-center flex-wrap justify-end">
                         <input type="date" id="filter-date" class="px-3 py-2 text-sm rounded-lg border border-gray-200 outline-none focus:border-brand-500" placeholder="Data">
                         <input type="text" id="filter-name" class="px-3 py-2 text-sm rounded-lg border border-gray-200 outline-none focus:border-brand-500" placeholder="Nome...">
@@ -185,15 +212,16 @@ export const DashboardModule = {
         if(!btn) return;
 
         const applyFilters = () => {
-            const date = document.getElementById('filter-date').value;
+            const date = document.getElementById('filter-date').value; // vem YYYY-MM-DD
             const name = document.getElementById('filter-name').value.toLowerCase();
             const phone = document.getElementById('filter-phone').value;
             
             const appointments = appStore.get().data.appointments;
             
-            // Filtra
             const filtered = appointments.filter(a => {
-                const matchDate = !date || a.date === date;
+                const appDate = a.date ? a.date.split('T')[0] : '';
+                
+                const matchDate = !date || appDate === date;
                 const matchName = !name || a.client_name.toLowerCase().includes(name);
                 const matchPhone = !phone || (a.client_phone && a.client_phone.includes(phone));
                 return matchDate && matchName && matchPhone;
@@ -203,7 +231,6 @@ export const DashboardModule = {
         };
 
         btn.addEventListener('click', applyFilters);
-        // Opcional: filtrar ao digitar
         document.getElementById('filter-name').addEventListener('keyup', applyFilters);
         document.getElementById('filter-phone').addEventListener('keyup', applyFilters);
     },
@@ -211,11 +238,14 @@ export const DashboardModule = {
     renderTableRows(data) {
         if (data.length === 0) return '<tr><td colspan="4" class="p-8 text-center text-gray-400">Nenhum agendamento encontrado.</td></tr>';
 
-        return data.map(app => `
+        return data.map(app => {
+            const dateDisplay = this.formatDateDisplay(app.date);
+
+            return `
             <tr class="hover:bg-gray-50 transition">
                 <td class="px-6 py-4">
-                    <div class="font-bold text-gray-800">${new Date(app.date).toLocaleDateString('pt-BR')}</div>
-                    <div class="text-xs text-brand-600 font-bold">${app.time} (${app.duration || 60}m)</div>
+                    <div class="font-bold text-gray-800">${dateDisplay}</div>
+                    <div class="text-xs text-brand-600 font-bold">${app.time} (${app.duration || 30}m)</div>
                 </td>
                 <td class="px-6 py-4">
                     <div class="font-medium text-gray-900">${app.client_name}</div>
@@ -241,16 +271,25 @@ export const DashboardModule = {
                     </div>
                 </td>
             </tr>
-        `).join('');
+        `}).join('');
     },
 
     async quickConfirm(id) {
+        // CORREÇÃO: Busca o agendamento completo no Store.
+        // Isso evita erros de "undefined" em time/date no api.js ao validar conflitos.
+        const app = appStore.get().data.appointments.find(a => a.id === id);
+        
+        if (!app) {
+            Utils.showToast('Agendamento não encontrado.', 'error');
+            return;
+        }
+
         Utils.showConfirm(
             'Confirmar Presença?',
             'Deseja marcar este agendamento como confirmado?',
             async () => {
-                const success = await API.saveAppointment({ id, status: 'confirmed' });
-                // Atualiza a tabela mantendo filtros (re-renderiza a view completa por simplicidade, ou poderia recarregar só a tabela)
+                // Envia o objeto completo, apenas atualizando o status
+                const success = await API.saveAppointment({ ...app, status: 'confirmed' });
                 if (success) DashboardModule.render('confirmations', document.getElementById('view-container'));
             }
         );
@@ -260,7 +299,9 @@ export const DashboardModule = {
         const app = appStore.get().data.appointments.find(a => a.id === id);
         if (!app?.client_phone) return Utils.showToast('Sem telefone cadastrado', 'error');
         
-        const msg = `Olá ${app.client_name}! Confirmamos seu agendamento para dia ${new Date(app.date).toLocaleDateString()} às ${app.time}?`;
+        const dateDisplay = this.formatDateDisplay(app.date);
+        
+        const msg = `Olá ${app.client_name}! Confirmamos seu agendamento para dia ${dateDisplay} às ${app.time}?`;
         const url = `https://wa.me/55${app.client_phone.replace(/\D/g,'')}?text=${encodeURIComponent(msg)}`;
         window.open(url, '_blank');
     }
