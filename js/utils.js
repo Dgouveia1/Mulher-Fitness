@@ -58,7 +58,6 @@ export const Utils = {
         }, 3000);
     },
 
-    // Nova função para o modal de confirmação
     showConfirm(title, text, onConfirm) {
         const modal = document.getElementById('confirmation-modal');
         const btnYes = document.getElementById('btn-confirm-yes');
@@ -70,14 +69,12 @@ export const Utils = {
         modal.classList.remove('hidden');
         modal.classList.add('flex');
 
-        // Limpa listeners antigos para não duplicar ações
         const newBtnYes = btnYes.cloneNode(true);
         btnYes.parentNode.replaceChild(newBtnYes, btnYes);
         
         const newBtnCancel = btnCancel.cloneNode(true);
         btnCancel.parentNode.replaceChild(newBtnCancel, btnCancel);
 
-        // Define novos listeners
         newBtnYes.addEventListener('click', () => {
             modal.classList.add('hidden');
             modal.classList.remove('flex');
@@ -90,3 +87,6 @@ export const Utils = {
         });
     }
 };
+
+// EXPOSE TO WINDOW (Corrige ReferenceError no HTML)
+window.Utils = Utils;

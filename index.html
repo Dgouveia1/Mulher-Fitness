@@ -22,6 +22,9 @@
                     fontFamily: { sans: ['Inter', 'sans-serif'], heading: ['Montserrat', 'sans-serif'] },
                     colors: {
                         brand: { 50: '#fdf2f8', 100: '#fce7f3', 200: '#fbcfe8', 300: '#f9a8d4', 400: '#f472b6', 500: '#ec4899', 600: '#db2777', 700: '#be185d', 800: '#9d174d' }
+                    },
+                    backgroundImage: {
+                        'stripes-gray': 'repeating-linear-gradient(45deg, #f3f4f6, #f3f4f6 10px, #e5e7eb 10px, #e5e7eb 20px)'
                     }
                 }
             }
@@ -42,7 +45,7 @@
         <div class="w-full max-w-4xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row box-shadow-login">
             <div class="md:w-1/2 login-bg-pattern relative flex items-center justify-center p-12 text-white">
                 <div class="absolute inset-0 bg-gradient-to-br from-brand-500 to-brand-700 opacity-90"></div>
-                <img src="imagens/imagem-para-tela-login 1.png" class="absolute inset-0 w-full h-full object-cover mix-blend-overlay opacity-50" onerror="this.style.display='none'">
+                <img src="imagens/imagem-para-tela-login.png" class="absolute inset-0 w-full h-full object-cover mix-blend-overlay opacity-50" onerror="this.style.display='none'">
                 <div class="text-center z-10 relative">
                     <div class="mb-4 inline-block bg-white/20 p-4 rounded-full backdrop-blur-sm">
                         <i class="fa-solid fa-dumbbell text-5xl"></i>
@@ -100,14 +103,24 @@
                     <div class="w-6 text-center"><i class="fa-regular fa-calendar group-hover:font-bold"></i></div>
                     <span class="ml-3 sidebar-text">Agenda</span>
                 </button>
+                <button id="nav-clients" data-view="clients" class="nav-item w-full flex items-center px-4 py-3 text-sm font-medium text-gray-500 rounded-xl hover:bg-brand-50 hover:text-brand-600 transition group">
+                    <div class="w-6 text-center"><i class="fa-solid fa-users"></i></div>
+                    <span class="ml-3 sidebar-text">Clientes</span>
+                </button>
                 <button id="nav-confirmacoes" data-view="confirmations" class="nav-item w-full flex items-center px-4 py-3 text-sm font-medium text-gray-500 rounded-xl hover:bg-brand-50 hover:text-brand-600 transition group">
                     <div class="w-6 text-center"><i class="fa-solid fa-check-double"></i></div>
                     <span class="ml-3 sidebar-text">Confirmações</span>
                 </button>
+                
+                <!-- Novo Item Admin -->
+                <button id="nav-settings" data-view="settings" class="nav-item w-full flex items-center px-4 py-3 text-sm font-medium text-gray-500 rounded-xl hover:bg-brand-50 hover:text-brand-600 transition group hidden">
+                    <div class="w-6 text-center"><i class="fa-solid fa-gear"></i></div>
+                    <span class="ml-3 sidebar-text">Configurações</span>
+                </button>
 
                 <div class="my-4 border-t border-gray-100"></div>
 
-                <button id="btn-toggle-chat" class="nav-item w-full flex items-center px-4 py-3 text-sm font-medium text-gray-500 rounded-xl hover:bg-green-50 hover:text-green-600 transition group">
+                <button onclick="ChatModule.toggleDock()" class="nav-item w-full flex items-center px-4 py-3 text-sm font-medium text-gray-500 rounded-xl hover:bg-green-50 hover:text-green-600 transition group">
                     <div class="w-6 text-center"><i class="fa-brands fa-whatsapp text-lg"></i></div>
                     <span class="ml-3 sidebar-text">Chat Equipe</span>
                 </button>
@@ -153,38 +166,38 @@
         </main>
     </div>
 
-    <!-- Chat Widget -->
-    <div id="chat-widget" class="fixed bottom-6 right-6 w-full max-w-[360px] h-[500px] bg-white rounded-2xl shadow-2xl z-50 flex flex-col border border-gray-100 chat-minimized transition-all duration-300 transform origin-bottom-right">
-        <!-- Header Chat -->
-        <div class="bg-brand-600 text-white p-4 rounded-t-2xl flex justify-between items-center shadow-md cursor-pointer hover:bg-brand-700 transition" id="chat-header" title="Clique para expandir/minimizar">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center relative">
-                    <i class="fa-brands fa-whatsapp text-xl"></i>
-                    <span class="status-dot absolute bottom-0 right-0 w-3 h-3 bg-green-400 border-2 border-brand-600 rounded-full"></span>
+    <!-- 
+        NOVO LAYOUT DE CHAT (FACEBOOK STYLE)
+        1. Dock de Contatos (Lista fixa à direita)
+        2. Container de Janelas Abertas (Fixed Bottom)
+    -->
+
+    <!-- 1. DOCK DE CONTATOS -->
+    <div id="chat-dock-container" class="fixed bottom-0 right-4 bg-white rounded-t-xl shadow-2xl border border-gray-200 flex flex-col chat-dock-container z-50">
+        <!-- Header Dock -->
+        <div id="btn-toggle-chat-dock" class="chat-dock-header bg-brand-600 text-white p-3 rounded-t-xl flex justify-between items-center hover:bg-brand-700 transition">
+            <div class="flex items-center gap-2">
+                <div class="relative">
+                    <i class="fa-brands fa-whatsapp text-lg"></i>
+                    <span class="status-dot absolute -top-1 -right-1 w-2.5 h-2.5 bg-green-400 border-2 border-brand-600 rounded-full hidden"></span>
                 </div>
-                <div>
-                    <span class="font-bold block text-sm">Equipe Espaço Mulher</span>
-                    <span class="text-[11px] opacity-90 block">Clique para abrir</span>
-                </div>
+                <span class="font-bold text-sm">Contatos</span>
             </div>
-            <button class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition" id="btn-minimize-chat">
-                <i class="fa-solid fa-chevron-down"></i>
-            </button>
+            <i class="fa-solid fa-chevron-up text-xs transition-transform"></i>
         </div>
-        
-        <!-- Body Chat -->
-        <div id="chat-messages" class="flex-1 bg-[#efeae2] p-4 overflow-y-auto custom-scroll flex flex-col gap-3 relative">
-            <div class="absolute inset-0 opacity-[0.06] pointer-events-none" style="background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png');"></div>
-            <!-- Messages go here -->
+
+        <!-- Lista de Usuários (Hidden by default) -->
+        <div id="chat-dock-list" class="chat-dock-list hidden bg-white border-t border-gray-100 overflow-y-auto custom-scroll h-[400px]">
+            <div id="chat-dock-users" class="flex flex-col">
+                <!-- Users injected via JS -->
+                <div class="p-4 text-center text-gray-400 text-xs">Carregando...</div>
+            </div>
         </div>
-        
-        <!-- Footer Chat -->
-        <form id="chat-form" class="p-3 bg-gray-50 rounded-b-2xl border-t border-gray-200 z-10 flex gap-2 items-center">
-            <input id="chat-input" type="text" class="flex-1 rounded-full px-4 py-2.5 border border-gray-200 outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 shadow-sm text-sm" placeholder="Digite sua mensagem..." autocomplete="off">
-            <button type="submit" class="w-10 h-10 bg-brand-600 text-white rounded-full flex items-center justify-center hover:bg-brand-700 transition shadow-sm active:scale-95">
-                <i class="fa-solid fa-paper-plane text-xs"></i>
-            </button>
-        </form>
+    </div>
+
+    <!-- 2. CONTAINER DE JANELAS (Popups) -->
+    <div id="chat-windows-container" class="fixed bottom-0 right-[270px] flex gap-3 items-end z-50 px-4">
+        <!-- Janelas injetadas via JS: <div class="chat-window ..."></div> -->
     </div>
 
     <!-- Modal de Agendamento -->
@@ -209,16 +222,8 @@
                         <input type="date" id="app-date" class="w-full p-2.5 border border-gray-200 rounded-lg bg-white outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 text-sm font-medium">
                     </div>
                     <div>
-                        <label class="text-xs font-bold text-gray-500 uppercase block mb-1">Horário</label>
-                        <select id="app-time" class="w-full p-2.5 border border-gray-200 rounded-lg bg-white outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 text-sm font-medium">
-                            <option value="">Selecione</option>
-                            <option>06:00</option><option>07:00</option><option>08:00</option>
-                            <option>09:00</option><option>10:00</option><option>11:00</option>
-                            <option>12:00</option><option>13:00</option><option>14:00</option>
-                            <option>15:00</option><option>16:00</option><option>17:00</option>
-                            <option>18:00</option><option>19:00</option><option>20:00</option>
-                            <option>21:00</option>
-                        </select>
+                        <label class="text-xs font-bold text-gray-500 uppercase block mb-1">Horário (30m)</label>
+                        <input type="time" id="app-time" step="1800" class="w-full p-2.5 border border-gray-200 rounded-lg bg-white outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 text-sm font-medium">
                     </div>
                 </div>
 
@@ -233,6 +238,8 @@
                 </div>
 
                 <input type="hidden" id="app-type" value="fisica">
+                <input type="hidden" id="app-duration" value="30"> <!-- Forçado 30 -->
+
                 <div>
                     <label class="text-xs font-bold text-gray-500 uppercase block mb-1">Tipo</label>
                     <div class="flex gap-2">

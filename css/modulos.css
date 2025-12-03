@@ -1,62 +1,35 @@
-/* --- CHAT MODULE --- */
-
-/* Estados do Chat */
-.chat-expanded {
-    transform: translateY(0) scale(1) !important;
-    opacity: 1 !important;
-    pointer-events: auto !important;
+/* --- CHAT DOCK (Lista Lateral Fixa ou Minimizado) --- */
+.chat-dock-container {
+    width: 250px;
+    z-index: 60;
 }
 
-.chat-minimized {
-    transform: translateY(calc(100% - 70px)) !important; 
-    opacity: 1 !important;
-    pointer-events: auto !important;
+.chat-dock-header {
     cursor: pointer;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
 }
 
-.chat-minimized #chat-header {
-    background-color: #be185d;
+.chat-dock-list {
+    max-height: 400px;
+    transition: all 0.3s ease;
 }
 
-.msg-bubble {
-    padding: 6px 10px 6px 10px;
-    border-radius: 8px;
-    position: relative;
-    max-width: 85%;
-    word-wrap: break-word;
-    display: flex;
-    flex-direction: column;
+/* --- CHAT WINDOWS (Janelas Flutuantes) --- */
+#chat-windows-container {
+    /* Container invisível que segura as janelas */
+    pointer-events: none; 
 }
 
-/* Mensagem do Usuário (Enviada) - Verde/Brand Claro */
-.msg-out {
-    background-color: #dcf8c6; /* Verde estilo WhatsApp */
-    align-self: flex-end;
-    border-top-right-radius: 0;
+.chat-window {
+    pointer-events: auto; /* Reabilita cliques na janela */
+    box-shadow: 0 5px 20px rgba(0,0,0,0.15);
 }
 
-/* Mensagem de Outros (Recebida) - Branco */
-.msg-in {
-    background-color: #ffffff;
-    align-self: flex-start;
-    border-top-left-radius: 0;
-}
+/* Scrollbar fina para os chats */
+.custom-scroll::-webkit-scrollbar { width: 4px; }
+.custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
 
-.msg-meta {
-    font-size: 10px;
-    color: rgba(0, 0, 0, 0.45);
-    align-self: flex-end;
-    margin-top: 2px;
-    margin-left: 8px; /* Espaço entre texto e hora se ficarem na mesma linha */
-    display: flex;
-    align-items: center;
-    line-height: 1;
-    float: right; /* Truque para hora flutuar ao fim do texto se possível */
-}
-
-/* --- CALENDAR MODULE (Google Calendar Style) --- */
-
-/* Grid Mensal */
+/* --- CALENDAR MODULE (Mantido do original) --- */
 .calendar-month-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
@@ -71,13 +44,6 @@
     display: flex;
     flex-direction: column;
     padding: 2px;
-}
-
-.calendar-day-header {
-    text-align: center;
-    font-size: 11px;
-    padding: 4px;
-    color: #6b7280;
 }
 
 .day-number {

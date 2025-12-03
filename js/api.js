@@ -13,12 +13,14 @@ class Store {
             data: {
                 appointments: [],
                 messages: [],
+                users_list: [], // Para o chat
                 clients: [],
-                holidays: CONFIG.HOLIDAYS
+                blocked_days: [] // Feriados e dias fechados
             },
             ui: {
                 loading: false,
-                lastFetch: 0
+                lastFetch: 0,
+                activeChatUser: null // null = Global, ID = Chat Privado
             }
         };
         this.listeners = [];
@@ -69,21 +71,19 @@ export const API = {
         });
     },
 
-    // Auxiliar para converter formato Time (HH:MM:SS) para Minutos (Int)
     parseDurationToMinutes(timeStr) {
-        if (!timeStr) return 60; // Padrão
+        if (!timeStr) return 30; // Padrão alterado para 30 min
         try {
             const [h, m] = timeStr.split(':').map(Number);
             return (h * 60) + m;
         } catch (e) {
-            return 60;
+            return 30;
         }
     },
 
-    // Auxiliar para converter Minutos (Int) para Time (HH:MM:00)
     formatMinutesToTime(minutes) {
         const m = parseInt(minutes);
-        if (isNaN(m)) return '01:00:00';
+        if (isNaN(m)) return '00:30:00';
         
         const hours = Math.floor(m / 60);
         const mins = m % 60;
@@ -91,28 +91,22 @@ export const API = {
         return `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}:00`;
     },
 
+    // --- AGENDAMENTOS ---
     async fetchAppointments(force = false) {
         const now = Date.now();
         const { ui } = appStore.get();
 
-        if (!force && (now - ui.lastFetch < 60000)) {
-            console.log('[API] Using cached appointments');
-            return true;
-        }
+        if (!force && (now - ui.lastFetch < 60000)) return true;
 
-        console.log('[API] Fetching appointments...');
         appStore.set(s => ({ ...s, ui: { ...s.ui, loading: true } }));
 
         try {
             const { data, error } = await supabaseClient.from('appointments').select('*').limit(1000);
             if (error) throw error;
 
-            // [CORREÇÃO] Normalização dos dados vindos do banco
             const normalizedData = data.map(app => ({
                 ...app,
-                // Mapeia a coluna 'telefone' para 'client_phone' usado na aplicação
                 client_phone: app.telefone || app.client_phone || '', 
-                // Converte o formato TIME (01:00:00) do banco para INT (60) da aplicação
                 duration: this.parseDurationToMinutes(app.duration)
             }));
 
@@ -124,113 +118,61 @@ export const API = {
             return true;
         } catch (error) {
             console.error('[API] Error fetching appointments:', error);
-            showToast('Erro ao carregar agendamentos.', 'error');
             appStore.set(s => ({ ...s, ui: { ...s.ui, loading: false } }));
             return false;
         }
     },
 
-    async fetchClients() {
-        try {
-            const { data, error } = await supabaseClient.from('clients').select('*').order('name', { ascending: true });
-            
-            if (error) {
-                // Silencia erro se a tabela não existir ainda, para não travar o app
-                console.warn('[API] Info: Tabela de clientes indisponível ou vazia.'); 
-                return;
-            }
+    // Validação de Conflito de Horário
+    checkAppointmentConflict(date, time, duration, ignoreId = null) {
+        const appointments = appStore.get().data.appointments;
+        const blockedDays = appStore.get().data.blocked_days || [];
 
-            if (data) {
-                appStore.set(s => ({
-                    ...s,
-                    data: { ...s.data, clients: data }
-                }));
-            }
-        } catch (error) {
-            console.warn('[API] Erro fetch clients:', error);
-        }
-    },
+        // 1. Verificar se o dia está bloqueado
+        const isBlocked = blockedDays.some(d => d.date === date);
+        if (isBlocked) return { conflict: true, message: 'Este dia está fechado para agendamentos.' };
 
-    async syncClientData(clientData) {
-        if (!clientData.name) return;
+        // Converter novo horário para minutos
+        const [h, m] = time.split(':').map(Number);
+        const newStart = (h * 60) + m;
+        const newEnd = newStart + duration;
 
-        try {
-            // Verifica se a tabela existe tentando um select simples primeiro
-            const { error: checkError } = await supabaseClient.from('clients').select('id').limit(1);
-            if (checkError && checkError.code === '42P01') return; // Tabela não existe
+        // 2. Verificar conflito com outros agendamentos
+        const hasConflict = appointments.some(app => {
+            if (app.date !== date) return false; // Outro dia
+            if (ignoreId && app.id == ignoreId) return false; // Mesmo agendamento (edição)
+            if (app.status === 'cancelled') return false; // Ignorar cancelados
 
-            const { data: existingClients } = await supabaseClient
-                .from('clients')
-                .select('id')
-                .ilike('name', clientData.name)
-                .limit(1);
+            const [ah, am] = app.time.split(':').map(Number);
+            const appStart = (ah * 60) + am;
+            const appEnd = appStart + app.duration;
 
-            const payload = {
-                name: clientData.name,
-                phone: clientData.phone,
-                last_visit: new Date().toISOString().split('T')[0]
-            };
+            // Lógica de sobreposição: (StartA < EndB) e (EndA > StartB)
+            return (newStart < appEnd && newEnd > appStart);
+        });
 
-            if (existingClients && existingClients.length > 0) {
-                await supabaseClient.from('clients').update(payload).eq('id', existingClients[0].id);
-            } else {
-                await supabaseClient.from('clients').insert(payload);
-            }
-            
-            this.fetchClients();
+        if (hasConflict) return { conflict: true, message: 'Horário indisponível (conflito com outro agendamento).' };
 
-        } catch (error) {
-            console.warn('[API] Sync client error:', error);
-        }
-    },
-
-    async fetchMessages() {
-        try {
-            const { data, error } = await supabaseClient.from('messages').select('*').order('created_at', { ascending: true }).limit(50);
-            if (error) throw error;
-
-            if (data) {
-                appStore.set(s => ({
-                    ...s,
-                    data: { ...s.data, messages: data }
-                }));
-            }
-        } catch (error) {
-            console.error('[API] Error fetching messages:', error);
-        }
-    },
-
-    async sendMessage(text) {
-        let { user, profile } = appStore.get(); 
-        if (!user) return { error: 'Usuário não autenticado' };
-
-        if (!profile) {
-            const { data } = await supabaseClient.from('profiles').select('*').eq('id', user.id).single();
-            if (data) {
-                profile = data;
-                appStore.set(s => ({ ...s, profile: data }));
-            }
-        }
-
-        const userName = user.email.split('@')[0];
-        const unitName = profile?.unit || 'Sem Unidade';
-        const senderComposite = `${userName} | ${unitName}`;
-
-        try {
-            const result = await supabaseClient.from('messages').insert({
-                content: text,
-                sender_id: user.id,
-                sender_name: senderComposite
-            });
-            if (result.error) throw result.error;
-            return { data: result.data, error: null };
-        } catch (error) {
-            console.error('[API] Error sending message:', error);
-            return { data: null, error };
-        }
+        return { conflict: false };
     },
 
     async saveAppointment(appointmentData) {
+        // Forçar duração de 30 minutos conforme requisito
+        appointmentData.duration = 30;
+
+        // Validar conflitos antes de enviar ao banco
+        const validation = this.checkAppointmentConflict(
+            appointmentData.date, 
+            appointmentData.time, 
+            appointmentData.duration, 
+            appointmentData.id
+        );
+
+        if (validation.conflict) {
+            showToast(validation.message, 'warning');
+            return false;
+        }
+
         appStore.set(s => ({ ...s, ui: { ...s.ui, loading: true } }));
         try {
             const query = supabaseClient.from('appointments');
@@ -241,7 +183,6 @@ export const API = {
                 phone: appointmentData.client_phone
             };
 
-            // Prepara o payload para corresponder ao Schema do Banco
             const payload = { 
                 date: appointmentData.date,
                 time: appointmentData.time,
@@ -249,26 +190,17 @@ export const API = {
                 type: appointmentData.type,
                 status: appointmentData.status,
                 unit: appointmentData.unit,
-                // [CORREÇÃO] Mapeia client_phone para telefone
                 telefone: appointmentData.client_phone, 
-                // [CORREÇÃO] Converte INT (60) para TIME (01:00:00)
                 duration: this.formatMinutesToTime(appointmentData.duration)
             };
             
-            // Remove campos que não existem no banco
-            // 'professional' foi removido pois não consta no schema CSV
-            // 'client_phone' foi mapeado para 'telefone'
-
             if (appointmentData.id) {
                 result = await query.update(payload).eq('id', appointmentData.id);
             } else {
                 result = await query.insert(payload);
             }
 
-            if (result.error) {
-                console.error('[API] Supabase Error:', result.error); // Log detalhado
-                throw result.error;
-            }
+            if (result.error) throw result.error;
 
             await this.syncClientData(clientInfo);
 
@@ -279,10 +211,7 @@ export const API = {
             return true;
         } catch (error) {
             console.error('[API] Error saving appointment:', error);
-            let msg = 'Erro ao salvar agendamento.';
-            if (error.code === '22007') msg = 'Formato de hora inválido.';
-            if (error.code === 'PGRST204') msg = 'Erro de coluna no banco de dados.';
-            showToast(msg, 'error');
+            showToast('Erro ao salvar agendamento.', 'error');
             return false;
         } finally {
             appStore.set(s => ({ ...s, ui: { ...s.ui, loading: false } }));
@@ -306,6 +235,147 @@ export const API = {
             return false;
         } finally {
             appStore.set(s => ({ ...s, ui: { ...s.ui, loading: false } }));
+        }
+    },
+
+    // --- CLIENTES ---
+    async fetchClients() {
+        try {
+            const { data, error } = await supabaseClient.from('clients').select('*').order('name', { ascending: true });
+            if (!error && data) {
+                appStore.set(s => ({ ...s, data: { ...s.data, clients: data } }));
+            }
+        } catch (error) { console.warn('[API] Erro fetch clients:', error); }
+    },
+
+    async syncClientData(clientData) {
+        if (!clientData.name) return;
+        try {
+            const { error: checkError } = await supabaseClient.from('clients').select('id').limit(1);
+            if (checkError && checkError.code === '42P01') return; 
+
+            const { data: existingClients } = await supabaseClient
+                .from('clients').select('id').ilike('name', clientData.name).limit(1);
+
+            const payload = {
+                name: clientData.name,
+                phone: clientData.phone,
+                last_visit: new Date().toISOString().split('T')[0]
+            };
+
+            if (existingClients && existingClients.length > 0) {
+                await supabaseClient.from('clients').update(payload).eq('id', existingClients[0].id);
+            } else {
+                await supabaseClient.from('clients').insert(payload);
+            }
+            this.fetchClients();
+        } catch (error) { console.warn('[API] Sync client error:', error); }
+    },
+
+    // --- CHAT (Global + Privado) ---
+    async fetchUsersList() {
+        try {
+            // Traz perfis para montar a lista de chat
+            const { data, error } = await supabaseClient.from('profiles').select('id, email, role, unit');
+            if (!error && data) {
+                appStore.set(s => ({ ...s, data: { ...s.data, users_list: data } }));
+            }
+        } catch (e) { console.error('Erro users list', e); }
+    },
+
+    async fetchMessages() {
+        try {
+            const { user } = appStore.get();
+            if (!user) return;
+
+            // Busca mensagens onde (recipient_id IS NULL) OR (sender_id = ME) OR (recipient_id = ME)
+            const { data, error } = await supabaseClient
+                .from('messages')
+                .select('*')
+                .or(`recipient_id.is.null,sender_id.eq.${user.id},recipient_id.eq.${user.id}`)
+                .order('created_at', { ascending: true })
+                .limit(200);
+
+            if (error) throw error;
+
+            if (data) {
+                appStore.set(s => ({
+                    ...s,
+                    data: { ...s.data, messages: data }
+                }));
+            }
+        } catch (error) {
+            console.error('[API] Error fetching messages:', error);
+        }
+    },
+
+    async sendMessage(text, recipientId = null) {
+        let { user, profile } = appStore.get(); 
+        if (!user) return { error: 'Usuário não autenticado' };
+
+        if (!profile) {
+            const { data } = await supabaseClient.from('profiles').select('*').eq('id', user.id).single();
+            if (data) {
+                profile = data;
+                appStore.set(s => ({ ...s, profile: data }));
+            }
+        }
+
+        const userName = user.email.split('@')[0];
+        const unitName = profile?.unit || 'Sem Unidade';
+        const senderComposite = `${userName} | ${unitName}`;
+
+        try {
+            const payload = {
+                content: text,
+                sender_id: user.id,
+                sender_name: senderComposite,
+                recipient_id: recipientId // Novo campo
+            };
+
+            const result = await supabaseClient.from('messages').insert(payload);
+            if (result.error) throw result.error;
+            return { data: result.data, error: null };
+        } catch (error) {
+            console.error('[API] Error sending message:', error);
+            return { data: null, error };
+        }
+    },
+
+    // --- CONFIGURAÇÕES / DIAS BLOQUEADOS ---
+    async fetchBlockedDays() {
+        try {
+            const { data, error } = await supabaseClient.from('blocked_days').select('*').order('date', { ascending: true });
+            if (!error && data) {
+                appStore.set(s => ({ ...s, data: { ...s.data, blocked_days: data } }));
+            }
+        } catch (e) { console.error('Error fetching blocked days', e); }
+    },
+
+    async saveBlockedDay(date, reason, type = 'closed') {
+        try {
+            const { error } = await supabaseClient.from('blocked_days').insert({ date, reason, type });
+            if (error) throw error;
+            await this.fetchBlockedDays();
+            showToast('Data bloqueada com sucesso', 'success');
+            return true;
+        } catch (e) {
+            showToast('Erro ao bloquear data', 'error');
+            console.error(e);
+            return false;
+        }
+    },
+
+    async deleteBlockedDay(id) {
+        try {
+            const { error } = await supabaseClient.from('blocked_days').delete().eq('id', id);
+            if (error) throw error;
+            await this.fetchBlockedDays();
+            showToast('Bloqueio removido', 'success');
+            return true;
+        } catch (e) {
+            showToast('Erro ao remover bloqueio', 'error');
+            return false;
         }
     }
 };
